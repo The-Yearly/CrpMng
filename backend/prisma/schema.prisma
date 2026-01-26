@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model agent {
+  agentId    Int      @id @default(autoincrement())
+  agentName  String
+  agentEmail String
+  agentPass  String
+  agentPic   String
+  farmers    farmer[]
+}
+
+model farmer {
+  farmerId     Int    @id @default(autoincrement())
+  farmerName   String
+  farmerFather String
+  farmerPic    String
+  address      String
+  phone        String
+  agentId      Int
+  aaid         agent  @relation(fields: [agentId], references: [agentId])
+  plots        plot[]
+}
+
+model plot {
+  plotId    Int    @id @default(autoincrement())
+  farmerId  Int
+  plotCords Json
+  crop      String
+  address   String
+  location  String
+  plotImage String
+  fid       farmer @relation(fields: [farmerId], references: [farmerId])
+}
