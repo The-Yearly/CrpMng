@@ -12,6 +12,8 @@
       "src": "/(.*)",
       "dest": "src/index.ts",
       "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+      
     }
-  ]
+  ],
+  "files": ["src/certs/aiven-root.crt"]
 }
