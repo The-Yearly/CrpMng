@@ -1,10 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
-import {
-  selectedPlot,
-  farmerType,
-  fullFarmerDetails,
-} from "../../../../../app/admin/utils/types";
+import { selectedPlot,fullFarmerDetails } from "../../../../utils/types";
 console.log(process.cwd());
 console.log(process.env.TEST);
 import { Router } from "express";
