@@ -1,88 +1,65 @@
+"use client";
+
 import Image from "next/image";
-import { Plots, FarmerDetails } from "@/app/components/utils/dummyData";
-import { fullFarmerDetails, selectedPlot } from "../../utils/types";
+import { FarmerDetails } from "@/app/components/utils/dummyData";
+import { fullFarmerDetails } from "../../utils/types";
 import { MapPin, Phone, Sprout, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
 const FarmersCard = ({ farmer }: { farmer: fullFarmerDetails }) => {
   return (
-    <div className="group relative bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:border-green-200">
-      <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-      <div className="relative p-5">
-        <div className="flex items-start gap-4 mb-4">
+    <div className="bg-white rounded-xl border shadow-sm hover:shadow-lg transition">
+      <div className="p-5">
+        <div className="flex gap-4 mb-4">
           <Image
             src={farmer.farmerImage}
             alt={farmer.name}
             width={64}
             height={64}
-            className="rounded-full object-cover ring-2 ring-green-100 group-hover:ring-green-300 transition-all flex-shrink-0"
+            className="rounded-full object-cover"
           />
 
-          <div className="flex-grow">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {farmer.name}
-            </h3>
-            <p className="text-sm text-gray-500 mt-0.5">
+          <div>
+            <h3 className="font-semibold">{farmer.name}</h3>
+            <p className="text-sm text-gray-500">
               Farmer ID: {farmer.farmerId}
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-              <User className="w-4 h-4 text-purple-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500">Agent ID</p>
-              <p className="text-sm font-medium text-gray-900">
-                {farmer.agentId}
-              </p>
-            </div>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex gap-2 items-center">
+            <User size={16} />
+            {farmer.agentId}
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
-              <MapPin className="w-4 h-4 text-orange-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500">Location</p>
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {farmer.locations[0]}
-              </p>
-            </div>
+          <div className="flex gap-2 items-center">
+            <MapPin size={16} />
+            {farmer.locations[0]}
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <Sprout className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500">Plots</p>
-              <p className="text-sm font-medium text-gray-900">
-                {farmer.noOfPlots}
-              </p>
-            </div>
+          <div className="flex gap-2 items-center">
+            <Sprout size={16} />
+            {farmer.noOfPlots} Plots
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <Phone className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500">Contact</p>
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {farmer.phone}
-              </p>
-            </div>
+          <div className="flex gap-2 items-center">
+            <Phone size={16} />
+            {farmer.phone}
           </div>
         </div>
 
-        <button className="w-full mt-4 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-          View Details
-        </button>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {farmer.crops.map((crop) => (
+            <span
+              key={crop}
+              className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded"
+            >
+              {crop}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -97,63 +74,55 @@ export const FarmersGrid = ({
   selectedLocation: string;
   searchValue: string;
 }) => {
-  const [farmerDetails, setFarmerDetails] = useState<
-    fullFarmerDetails[] | null
-  >(null);
-  const [filteredFarmerDetails, setFilteredFarmerDetails] = useState<
-    fullFarmerDetails[] | null
-  >(null);
+  const [farmers, setFarmers] = useState<fullFarmerDetails[]>([]);
+
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/getFarmerDets",
-      );
-      setFarmerDetails(res.data.data);
-      console.log(res.data.data);
+      try {
+        const res = await axios.get(
+          process.env.NEXT_PUBLIC_BACKEND_URL + "/getFarmerDets"
+        );
+        setFarmers(res.data.data);
+      } catch {
+        // fallback to dummy data
+        setFarmers(FarmerDetails as fullFarmerDetails[]);
+      }
     };
     fetchData();
   }, []);
-  useEffect(() => {
-    console.log(searchValue, "MNake it pass the passion");
-    if (farmerDetails) {
-      const filteredPlots: fullFarmerDetails[] = farmerDetails.filter(
-        (data) => {
-          const search = searchValue.trim().toLowerCase();
-          const searchMatch =
-            search === "" ||
-            String(data.farmerId).includes(search) ||
-            data.name.toLowerCase().includes(search);
 
-          const locationMatch =
-            selectedLocation === "Select Area" ||
-            data.locations.includes(selectedLocation);
+  const filteredFarmers = farmers.filter((f) => {
+    const search = searchValue.toLowerCase().trim();
 
-          const cropMatch =
-            selectedCrop === "Select Crop" || data.crops.includes(selectedCrop);
+    const searchMatch =
+      !search ||
+      f.name.toLowerCase().includes(search) ||
+      String(f.farmerId).includes(search);
 
-          return searchMatch && locationMatch && cropMatch;
-        },
-      );
-      setFilteredFarmerDetails(filteredPlots);
-    }
-  }, [searchValue, selectedCrop, selectedLocation]);
-  if (farmerDetails != null) {
-    const dataRender = filteredFarmerDetails
-      ? filteredFarmerDetails
-      : farmerDetails;
+    const locationMatch =
+      selectedLocation === "Select Area" ||
+      f.locations.includes(selectedLocation);
+
+    const cropMatch =
+      selectedCrop === "Select Crop" ||
+      f.crops.includes(selectedCrop.toUpperCase() as any);
+
+    return searchMatch && locationMatch && cropMatch;
+  });
+
+  if (filteredFarmers.length === 0) {
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-5 mt-10">
-          {dataRender.map((farmer, i) => (
-            <FarmersCard key={i} farmer={farmer} />
-          ))}
-        </div>
-        {FarmerDetails.length === 0 && (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <p className="text-gray-500">No farmers found</p>
-          </div>
-        )}
+      <div className="text-center py-10 text-gray-500">
+        No farmers found
       </div>
     );
   }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-5 mt-10">
+      {filteredFarmers.map((farmer) => (
+        <FarmersCard key={farmer.farmerId} farmer={farmer} />
+      ))}
+    </div>
+  );
 };

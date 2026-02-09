@@ -1,4 +1,5 @@
 import { LatLngTuple } from "leaflet";
+
 export interface plotType {
   agentId: number;
   plotId: number;
