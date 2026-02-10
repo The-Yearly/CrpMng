@@ -1,5 +1,3 @@
-export default function CropDetailPage(){
-    return(
-        <></>
-    )
+export default function CropDetailPage() {
+  return <></>;
 }

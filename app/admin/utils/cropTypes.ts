@@ -1,25 +1,19 @@
-export type CropName =
-  | "CHILLI"
-  | "TURMERIC"
-  | "GINGER"
-  | "MARIGOLD";
-
 export type CropStats = {
   totalFarmers: number;
   totalPlots: number;
-  totalArea: number; // in acres
+  totalArea: number;
 };
 
 export type CropGridType = {
   cropId: number;
-  cropName: CropName;
+  cropName: string;
   cropImage: string;
   season: string;
   stats: CropStats;
 };
 
 export type CropHeroType = {
-  cropName: CropName;
+  cropName: string;
   description: string;
   idealTemperature: string;
   waterRequirement: string;

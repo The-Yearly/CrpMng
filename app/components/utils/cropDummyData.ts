@@ -1,4 +1,4 @@
-import {CropGridType, CropHeroType} from "./../../admin/utils/cropTypes"
+import { CropGridType, CropHeroType } from "./../../admin/utils/cropTypes";
 /* ================= CROP GRID DATA ================= */
 
 export const CropGridData: CropGridType[] = [

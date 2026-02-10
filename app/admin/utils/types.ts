@@ -32,7 +32,7 @@ export interface PlotDets extends plotType {
   fid: farmerType;
 }
 
-export interface fullFarmerDetails extends farmerType {
+export interface FullFarmerDetails extends farmerType {
   crops: string[];
   locations: string[];
 }
