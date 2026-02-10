@@ -1,5 +1,20 @@
-import { Users, Leaf, LandPlot } from "lucide-react";
-export default function FarmersHero() {
+"use client";
+import { Users, Leaf, LandPlot, ChevronDown } from "lucide-react";
+import { filterType } from "../farmers/page";
+
+export default function Hero({
+  welcomeMessage,
+  searchValue,
+  setSearchValue,
+  filters,
+  setFilters,
+}: {
+  welcomeMessage: string;
+  searchValue: string;
+  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
+  filters: filterType[];
+  setFilters: React.Dispatch<React.SetStateAction<filterType[]>>;
+}) {
   const heroData = [
     {
       name: "Some Data1",
@@ -36,7 +51,7 @@ export default function FarmersHero() {
   return (
     <div className="mt-12 pl-8 flex w-full  items-start">
       <div className="flex flex-col w-full  ">
-        <p className="text-6xl font-semibold">Welcome in, Admin</p>
+        <p className="text-6xl font-semibold">{welcomeMessage}</p>
         <div className="flex w-full justify-between space-x-4 mt-12">
           <div className="flex-col">
             <div className="flex">
@@ -50,9 +65,61 @@ export default function FarmersHero() {
               ))}
             </div>
             <input
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
               className="w-full bg-white/90 mt-4 rounded-full h-12 px-4 shadow focus:outline-none"
-              placeholder="Search Crops"
+              placeholder="Search Farmer (ID or Name)"
             />
+            <div className="flex mt-2 ml-2 space-x-5">
+              {filters.map((filter, i) => (
+                <div key={i} className="relative w-48">
+                  <div
+                    onClick={() =>
+                      setFilters((prev) =>
+                        prev.map((item, index) =>
+                          index === i
+                            ? { ...item, filterDrop: !filter.filterDrop }
+                            : item,
+                        ),
+                      )
+                    }
+                    className="bg-white flex items-center justify-between text-lg text-gray-600 shadow rounded-2xl px-2 h-8"
+                  >
+                    <p className="ml-2">{filter.filterSelected}</p>
+
+                    <ChevronDown
+                      className={`transition-transform ${filter.filterDrop ? "rotate-180" : ""}`}
+                    />
+                  </div>
+
+                  {filter.filterDrop && (
+                    <div className="absolute top-10 left-0 w-full bg-white shadow rounded-2xl p-2 z-10">
+                      {filter.filterValue.map((dropDownValue, dropIndex) => (
+                        <p
+                          onClick={() => {
+                            setFilters((prev) =>
+                              prev.map((item, index) =>
+                                index === i
+                                  ? {
+                                      ...item,
+                                      filterDrop: !filter.filterDrop,
+                                      filterSelected: dropDownValue,
+                                    }
+                                  : item,
+                              ),
+                            );
+                          }}
+                          key={dropIndex}
+                          className="text-gray-700 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                        >
+                          {dropDownValue}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
           <div className="flex space-x-16 pr-16">
             {employeeStats.map((stat, i) => (
