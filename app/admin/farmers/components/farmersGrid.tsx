@@ -4,6 +4,7 @@ import { fullFarmerDetails, selectedPlot } from "../../utils/types";
 import { MapPin, Phone, Sprout, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 const FarmersCard = ({ farmer }: { farmer: fullFarmerDetails }) => {
   return (
@@ -79,10 +80,11 @@ const FarmersCard = ({ farmer }: { farmer: fullFarmerDetails }) => {
             </div>
           </div>
         </div>
-
-        <button className="w-full mt-4 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-          View Details
-        </button>
+        <Link href={`/admin/farmers/${farmer.farmerId}`}>
+          <button className="w-full mt-4 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+            View Details
+          </button>
+        </Link>
       </div>
     </div>
   );
