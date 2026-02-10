@@ -1,5 +1,4 @@
 import { LatLngTuple } from "leaflet";
-
 export interface plotType {
   agentId: number;
   plotId: number;
@@ -32,7 +31,7 @@ export interface PlotDets extends plotType {
   fid: farmerType;
 }
 
-export interface FullFarmerDetails extends farmerType {
+export interface fullFarmerDetails extends farmerType {
   crops: string[];
   locations: string[];
 }

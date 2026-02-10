@@ -9,7 +9,7 @@ export default function TopBar() {
     { label: "Dashboard", href: "/admin" },
     { label: "Plantings", href: "/admin/plantings" },
     { label: "Farmers", href: "/admin/farmers" },
-    { label: "Energy", href: "/admin/energy" },
+    { label: "Crops", href: "/admin/crops" },
     { label: "Water", href: "/admin/water" },
     { label: "Food", href: "/admin/food" },
     { label: "Waste", href: "/admin/waste" },
