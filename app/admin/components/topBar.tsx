@@ -15,6 +15,7 @@ export default function TopBar() {
     { label: "Waste", href: "/admin/waste" },
     { label: "Goods", href: "/admin/goods" },
     { label: "Users", href: "/admin/users" },
+    { label: "Settings", href: "/admin/settings"}
   ];
 
   return (
@@ -38,11 +39,6 @@ export default function TopBar() {
             </Link>
           ))}
         </div>
-        <div className="bg-white/50 shadow flex items-center h-14 px-4 space-x-2 rounded-full hover:bg-white/70 transition">
-          <Settings className="w-5 h-5" />
-          <p className="text-sm font-medium">Settings</p>
-        </div>
-
         <div className="bg-white/50 shadow flex items-center justify-center h-14 w-14 rounded-full hover:bg-white/70 transition">
           <Bell className="w-5 h-5" />
         </div>
