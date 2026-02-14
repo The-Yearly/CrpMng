@@ -38,8 +38,6 @@ export default function FarmerDetails() {
       filterDrop: false,
       filterSelected: locations[0],
     },
-    
-    
   ]);
   const [farmerDetails, setFarmerDetails] = useState<
     FullFarmerDetails[] | null
@@ -57,23 +55,27 @@ export default function FarmerDetails() {
   }, []);
   return (
     <>
-    {farmerDetails&&
-    <>
-      <Hero
-        welcomeMessage="Search Farmers"
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        filters={filters}
-        setFilters={setFilters}
-      />
-      <Grid
-        searchValue={searchValue}
-        filters={filters}
-        datatype={"FullFarmerDetails"}
-        data={farmerDetails}
-        Card={FarmersCard}
-      />
-      </>}
+      {farmerDetails && (
+        <>
+          <Hero
+            welcomeMessage="Search Farmers"
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            filters={filters}
+            setFilters={setFilters}
+            searchBarPlaceHolder={"Search Farmers (ID or Name)"}
+          />
+          <Grid
+            searchValue={searchValue}
+            filters={filters}
+            datatype={"FullFarmerDetails"}
+            data={farmerDetails}
+            Card={FarmersCard}
+            searchColoumn={"name"}
+            searchColoumn2={"farmerId"}
+          />
+        </>
+      )}
     </>
-  )
+  );
 }

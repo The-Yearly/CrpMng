@@ -17,24 +17,52 @@ model agent {
 }
 
 model farmer {
-  farmerId     Int    @id @default(autoincrement())
-  farmerName   String
-  farmerFather String
-  farmerPic    String
-  address      String
-  phone        String
-  agentId      Int
-  aaid         agent  @relation(fields: [agentId], references: [agentId])
-  plots        plot[]
+  farmerId          Int                @id @default(autoincrement())
+  farmerName        String
+  farmerFather      String
+  farmerPic         String
+  address           String
+  phone             String
+  agentId           Int
+  aaid              agent              @relation(fields: [agentId], references: [agentId])
+  plots             plot[]
+  farmercropstables farmercropstable[]
 }
 
 model plot {
-  plotId    Int    @id @default(autoincrement())
-  farmerId  Int
-  plotCords Json
-  crop      String
-  address   String
-  location  String
-  plotImage String
-  fid       farmer @relation(fields: [farmerId], references: [farmerId])
+  plotId         Int             @id @default(autoincrement())
+  farmerId       Int
+  plotCords      Json
+  address        String
+  location       String
+  plotImage      String
+  fid            farmer          @relation(fields: [farmerId], references: [farmerId])
+  cropplottables cropplottable[]
+}
+
+model crop {
+  cropId            Int                @id @default(autoincrement())
+  cropName          String
+  cropDesc          String
+  cropImage         String
+  farmercropstables farmercropstable[]
+  cropplottables    cropplottable[]
+}
+
+model farmercropstable {
+  cropId   Int
+  farmerId Int
+  fid      farmer @relation(fields: [farmerId], references: [farmerId])
+  cid      crop   @relation(fields: [cropId], references: [cropId])
+
+  @@id([cropId, farmerId])
+}
+
+model cropplottable {
+  cropId Int
+  plotId Int
+  cid    crop @relation(fields: [cropId], references: [cropId])
+  pid    plot @relation(fields: [plotId], references: [plotId])
+
+  @@id([cropId, plotId])
 }
