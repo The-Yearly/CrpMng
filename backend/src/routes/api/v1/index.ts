@@ -5,6 +5,7 @@ import {
   fullFarmerDetails,
   CropGridType,
   IndivitualCrop,
+  fullPlotDetails,
 } from "../../../../utils/types";
 console.log(process.cwd());
 console.log(process.env.TEST);
@@ -147,6 +148,30 @@ router.get("/getCrops/:id", async (req, res) => {
           },
         },
       },
+      cropStages: {
+        select: {
+          sid: true,
+          stagename: true,
+          duration: true,
+          stagenumber: true,
+          cropsubstages: {
+            select: {
+              substageid: true,
+              substagename: true,
+              cropsubstagesvalues: {
+                select: {
+                  substagedataid: true,
+                  substagecoloumn: true,
+                },
+              },
+            },
+            orderBy: { substagenumber: "asc" },
+          },
+        },
+        orderBy: {
+          stagenumber: "asc",
+        },
+      },
     },
   });
   if (resp) {
@@ -173,7 +198,149 @@ router.get("/getCrops/:id", async (req, res) => {
           },
         },
       })),
+      stages: resp.cropStages.map((stages) => ({
+        sid: stages.sid,
+        stagename: stages.stagename,
+        stagenumber: stages.stagenumber,
+        duration: stages.duration,
+        cropsubstages: stages.cropsubstages.map((substages) => ({
+          substageid: substages.substageid,
+          substagename: substages.substagename,
+          substagescoloumns: substages.cropsubstagesvalues.map((data) => ({
+            substagedataid: data.substagedataid,
+            substagecolomn: data.substagecoloumn,
+          })),
+        })),
+      })),
     };
     res.json({ data: formattedResp });
+  }
+});
+
+router.get("/getPlotDetails/:id", async (req, res) => {
+  const id = req.params.id;
+  const resp = await client.plot.findUnique({
+    where: {
+      plotId: parseInt(id),
+    },
+    select: {
+      plotId: true,
+      address: true,
+      location: true,
+      farmerId: true,
+      fid: {
+        select: {
+          agentId: true,
+        },
+      },
+      plotCords: true,
+      plotImage: true,
+      cropplottables: {
+        select: {
+          cid: {
+            select: {
+              cropName: true,
+              cropStages: {
+                select: {
+                  stagename: true,
+                  cropsubstages: {
+                    select: {
+                      substagename: true,
+                      cropsubstagesvalues: {
+                        select: {
+                          plotsubstagevalues: {
+                            select: {
+                              name: true,
+                              data: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                    orderBy: {
+                      substagenumber: "asc",
+                    },
+                  },
+                },
+                orderBy: { stagenumber: "asc" },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (resp) {
+    const formattedResp: fullPlotDetails = {
+      agentId: resp.fid.agentId,
+      plotId: resp.plotId,
+      farmerId: resp.farmerId,
+      crop: resp.cropplottables[0]?.cid?.cropName ?? "",
+      location: resp.location,
+      plot: (resp.plotCords ?? []) as LatLngTuple[],
+      plotImage: resp.plotImage,
+
+      cropData: resp.cropplottables.map((cp) => ({
+        cropStages: cp.cid.cropStages,
+      })),
+    };
+
+    res.json({ data: formattedResp });
+  }
+});
+
+router.post("/newCropActivity", async (req, res) => {
+  const data = req.body;
+  console.log(data);
+  const resp = await client.cropstages.create({
+    data: {
+      cropId: data.cropId,
+      stagename: data.cropActivity,
+    },
+  });
+  console.log(resp);
+  if (resp) {
+    res.status(200).json({ message: "Success" });
+  }
+});
+
+router.delete("/deleteCropActivity/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const resp = await client.cropstages.delete({
+    where: {
+      sid: id,
+    },
+  });
+  console.log(resp);
+  if (resp) {
+    res.status(200).json({ message: "Success" });
+  }
+});
+
+router.post("/addSubActivity", async (req, res) => {
+  const data = req.body;
+  console.log(data);
+  const resp = await client.cropsubstages.create({
+    data: {
+      stageid: data.sid,
+      substagename: data.subactivityname,
+    },
+  });
+  console.log(resp);
+  if (resp) {
+    res.status(200).json({ message: "Success" });
+  }
+});
+
+router.delete("/deleteSubActivity/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const resp = await client.cropsubstages.delete({
+    where: {
+      substageid: id,
+    },
+  });
+
+  if (resp) {
+    res.status(200).json({ message: "Success" });
   }
 });

@@ -30,14 +30,15 @@ model farmer {
 }
 
 model plot {
-  plotId         Int             @id @default(autoincrement())
-  farmerId       Int
-  plotCords      Json
-  address        String
-  location       String
-  plotImage      String
-  fid            farmer          @relation(fields: [farmerId], references: [farmerId])
-  cropplottables cropplottable[]
+  plotId             Int                 @id @default(autoincrement())
+  farmerId           Int
+  plotCords          Json
+  address            String
+  location           String
+  plotImage          String
+  fid                farmer              @relation(fields: [farmerId], references: [farmerId], onDelete: Cascade)
+  cropplottables     cropplottable[]
+  plotsubstagevalues plotsubstagevalue[]
 }
 
 model crop {
@@ -47,13 +48,14 @@ model crop {
   cropImage         String
   farmercropstables farmercropstable[]
   cropplottables    cropplottable[]
+  cropStages        cropstages[]
 }
 
 model farmercropstable {
   cropId   Int
   farmerId Int
-  fid      farmer @relation(fields: [farmerId], references: [farmerId])
-  cid      crop   @relation(fields: [cropId], references: [cropId])
+  fid      farmer @relation(fields: [farmerId], references: [farmerId],onDelete: Cascade)
+  cid      crop   @relation(fields: [cropId], references: [cropId],onDelete:  Cascade)
 
   @@id([cropId, farmerId])
 }
@@ -61,8 +63,49 @@ model farmercropstable {
 model cropplottable {
   cropId Int
   plotId Int
-  cid    crop @relation(fields: [cropId], references: [cropId])
-  pid    plot @relation(fields: [plotId], references: [plotId])
+  cid    crop @relation(fields: [cropId], references: [cropId],onDelete: Cascade)
+  pid    plot @relation(fields: [plotId], references: [plotId],onDelete: Cascade)
 
   @@id([cropId, plotId])
+}
+
+model cropstages {
+  sid           Int             @id @default(autoincrement())
+  stagename     String
+  cropId        Int
+  stagenumber   Int             @default(0)
+  duration      Int            @default(0)
+  startedAt     DateTime       @default(now())
+  endDate       DateTime       @default(now())
+  cid           crop            @relation(fields: [cropId], references: [cropId],onDelete: Cascade)
+  cropsubstages cropsubstages[]
+}
+
+model cropsubstages {
+  substageid          Int                  @id @default(autoincrement())
+  stageid             Int
+  substagename        String
+  substagenumber      Int                  @default(0)
+  stageId             cropstages           @relation(fields: [stageid], references: [sid],onDelete: Cascade)
+  cropsubstagesvalues cropsubstagesvalue[]
+}
+
+model cropsubstagesvalue {
+  substagedataid       Int                 @id @default(autoincrement())
+  substageid           Int
+  substagecoloumn      String
+  substagecoloumnvalue String
+  substage             cropsubstages       @relation(fields: [substageid], references: [substageid],onDelete: Cascade)
+  plotsubstagevalues   plotsubstagevalue[]
+}
+
+model plotsubstagevalue {
+  plotId         Int
+  substagdataeid Int
+  name  String 
+  data           String
+  plot           plot               @relation(fields: [plotId], references: [plotId],onDelete:  Cascade)
+  substagevalue  cropsubstagesvalue @relation(fields: [substagdataeid], references: [substagedataid],onDelete: Cascade)
+
+  @@id([plotId, substagdataeid])
 }

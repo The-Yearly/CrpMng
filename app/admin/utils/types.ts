@@ -53,7 +53,6 @@ export interface CropGridType {
     totalPlots: number;
   };
 }
-
 export interface IndivitualCrop extends CropGridType {
   plots: {
     pid: {
@@ -68,5 +67,21 @@ export interface IndivitualCrop extends CropGridType {
         agentId: number;
       };
     };
+  }[];
+  stages: Stages[];
+}
+
+export interface Stages {
+  sid: number;
+  stagename: string;
+  duration: number;
+  stagenumber: number;
+  cropsubstages: {
+    substageid: number;
+    substagename: string;
+    substagescoloumns: {
+      substagedataid: number;
+      substagecolomn: string;
+    }[];
   }[];
 }

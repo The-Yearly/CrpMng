@@ -68,4 +68,37 @@ export interface IndivitualCrop extends CropGridType {
       };
     };
   }[];
+  stages: Stages[];
+}
+
+export interface Stages {
+  sid: number;
+  stagename: string;
+  duration: number;
+  stagenumber: number;
+  cropsubstages: {
+    substageid: number;
+    substagename: string;
+    substagescoloumns: {
+      substagedataid: number;
+      substagecolomn: string;
+    }[];
+  }[];
+}
+
+export interface fullPlotDetails extends plotType {
+  cropData: {
+    cropStages: {
+      stagename: string;
+      cropsubstages: {
+        substagename: string;
+        cropsubstagesvalues: {
+          plotsubstagevalues: {
+            name: string;
+            data: string;
+          }[];
+        }[];
+      }[];
+    }[];
+  }[];
 }
