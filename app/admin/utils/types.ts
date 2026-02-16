@@ -82,6 +82,13 @@ export interface Stages {
     substagescoloumns: {
       substagedataid: number;
       substagecolomn: string;
+     substagecoloumnvalue:string;
     }[];
   }[];
+}
+export interface filterType {
+  filterColoumnName: string;
+  filterValue: string[];
+  filterDrop: boolean;
+  filterSelected: string;
 }

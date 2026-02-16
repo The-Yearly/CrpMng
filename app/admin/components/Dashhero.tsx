@@ -1,6 +1,6 @@
 "use client";
 import { Users, Leaf, LandPlot, ChevronDown } from "lucide-react";
-import { filterType } from "../farmers/page";
+import { filterType } from "../utils/types";
 
 export default function Hero({
   welcomeMessage,

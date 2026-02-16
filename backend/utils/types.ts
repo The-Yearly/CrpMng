@@ -82,6 +82,8 @@ export interface Stages {
     substagescoloumns: {
       substagedataid: number;
       substagecolomn: string;
+      substagecoloumnvalue:string;
+      
     }[];
   }[];
 }
@@ -96,6 +98,7 @@ export interface fullPlotDetails extends plotType {
           plotsubstagevalues: {
             name: string;
             data: string;
+            
           }[];
         }[];
       }[];

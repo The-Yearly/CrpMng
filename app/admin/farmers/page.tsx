@@ -44,15 +44,16 @@ export default function FarmerDetails() {
   >(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    
+    fetchData();
+  }, []);
+  const fetchData = async () => {
       const res = await axios.get(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/getFarmerDets",
       );
       setFarmerDetails(res.data.data);
       console.log(res.data.data);
     };
-    fetchData();
-  }, []);
   return (
     <>
       {farmerDetails && (
@@ -65,15 +66,29 @@ export default function FarmerDetails() {
             setFilters={setFilters}
             searchBarPlaceHolder={"Search Farmers (ID or Name)"}
           />
-          <Grid
-            searchValue={searchValue}
-            filters={filters}
-            datatype={"FullFarmerDetails"}
-            data={farmerDetails}
-            Card={FarmersCard}
-            searchColoumn={"name"}
-            searchColoumn2={"farmerId"}
-          />
+        <Grid<FullFarmerDetails>
+          searchValue={searchValue}
+          filters={filters}
+          data={farmerDetails}
+          Card={FarmersCard}
+          searchColoumn="name"
+          searchColoumn2="farmerId"
+          onDelete={async (item) => {
+    try {
+      const res = await axios.delete(
+        process.env.NEXT_PUBLIC_BACKEND_URL +
+          `/deleteCrop/${item.farmerId}`
+      );
+
+      return res.status;
+    } catch (err) {
+      console.error(err);
+      return 404;
+    }
+  }}
+          refreshData={fetchData}
+        />
+
         </>
       )}
     </>

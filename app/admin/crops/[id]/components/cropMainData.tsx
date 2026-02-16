@@ -3,18 +3,27 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
-  Send,
   Pencil,
   PlusCircle,
   Trash2,
   Plus,
 } from "lucide-react";
 import { useState } from "react";
+const types=["String","Number","Boolean","Date"]
+const editCrop = async (id: number, formData: any) => {
+  const res = await axios.put(
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/editCrop",
+    { cropId: id, cropActivity: formData },
+  );
+  if (res.status === 200) {
+    return "ok";
+  }
+};
 
-const addNewColoumn = async (id: number, coloumnName: string) => {
+const addNewColoumn = async (id: number, formData: any) => {
   const res = await axios.post(
     process.env.NEXT_PUBLIC_BACKEND_URL + "/newCropActivity",
-    { cropId: id, cropActivity: coloumnName },
+    { cropId: id, cropActivity: formData },
   );
   if (res.status === 200) {
     return "ok";
@@ -28,18 +37,65 @@ const deleteColoumn = async (id: number) => {
     return "ok";
   }
 };
-const addSubColoumn = async (id: number, coloumnName: string) => {
-  const res = await axios.post(
-    process.env.NEXT_PUBLIC_BACKEND_URL + "/addSubActivity",
-    { sid: id, subactivityname: coloumnName },
+const editNewColoumn = async (id: number, formData: any) => {
+  const res = await axios.put(
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/editCropActivity",
+    { cropId: id, cropActivity: formData },
   );
   if (res.status === 200) {
     return "ok";
   }
 };
+
+const addSubActivity = async (id: number, formData: any) => {
+  const res = await axios.post(
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/addSubActivity",
+    { sid: id, subactivity: formData },
+  );
+  if (res.status === 200) {
+    return "ok";
+  }
+};
+const editSubActivity = async (id: number, formData: any) => {
+  const res = await axios.put(
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/editSubActivity",
+    { cropId: id, cropActivity: formData },
+  );
+  if (res.status === 200) {
+    return "ok";
+  }
+};
+
 const deleteSubActivity = async (id: number) => {
   const res = await axios.delete(
     process.env.NEXT_PUBLIC_BACKEND_URL + "/deleteSubActivity/" + id,
+  );
+  if (res.status === 200) {
+    return "ok";
+  }
+};
+const addSubActivityColoumn = async (id: number, formData: any) => {
+  const res = await axios.post(
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/addSubActivityColoumn",
+    { sid: id, subactivity: formData },
+  );
+  if (res.status === 200) {
+    return "ok";
+  }
+};
+
+const editSubActivityColoumn = async (id: number, formData: any) => {
+  const res = await axios.put(
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/editSubActivityColoumn",
+    { sid: id, subactivity: formData },
+  );
+  if (res.status === 200) {
+    return "ok";
+  }
+};
+const deleteSubActivityColoumn = async (id: number) => {
+  const res = await axios.delete(
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/deleteSubActivityColoumn/" + id,
   );
   if (res.status === 200) {
     return "ok";
@@ -49,19 +105,52 @@ interface selectedColoumn {
   id: number;
   name: string;
 }
-const formvalues = {
+const addValues = {
+    "Update Crop Details": {
+    heading: "Edit Crop Details",
+    inputs:[{ sub: "Crop Name",name:'name',type:"text",placeholder:"Enter Crop Name"},{ sub: "Crop Image",name:'image',type:"text",placeholder:"Enter Crop Image"},],
+    func: async (id: number, formData: any) =>
+      await editCrop(id, formData),
+  },
   "Add new Activity": {
     heading: "Add Log Activity",
-    sub: "Record progress or updates for this specific stage for",
-    func: async (id: number, coloumnName: string) =>
-      await addNewColoumn(id, coloumnName),
+   
+    inputs:[{ sub: "Record progress or updates for this specific stage for",name:'name',type:"text",placeholder:"Describe The Activity"},{sub: "Record duration of ",name:'duration',type:"number",placeholder:"Enter The Number Of Days"}],
+    func: async (id: number, formData: any) =>
+      await addNewColoumn(id, formData),
   },
   "Add new sub Activity": {
     heading: "Add Sub Activity",
-    sub: "Record new Sub Activities for",
-    func: async (id: number, coloumnName: string) =>
-      await addSubColoumn(id, coloumnName),
+    inputs:[{sub: "Record new Sub Activities for",name:'name',type:"text",placeholder:"Describe The Sub-Activity"}],
+    func: async (id: number, formData: any) =>
+      await addSubActivity(id, formData),
   },
+    "Add new sub Activity Coloumn": {
+    heading: "Add Sub Activity Coloumn",
+    inputs:[{sub: "Record new Sub Activities Coloumns for",name:'name',type:"text",placeholder:"Describe The Sub-Activity Coloumn"},{sub:"Enter Data Type",name:"type",type:"dropDown",placeholder:"Enter Type"}],
+    func: async (id: number, formData: any) =>
+      await addSubActivityColoumn(id, formData),
+  },
+  "Update Activity": {
+    heading: "Edit Activity",
+   
+    inputs:[{ sub: "Record progress or updates for this specific stage for",name:'name',type:"text",placeholder:"Describe The Activity"},{sub: "Record duration of ",name:'duration',type:"number",placeholder:"Enter The Number Of Days"}],
+    func: async (id: number, formData: any) =>
+      await editNewColoumn(id, formData),
+  },
+    "Update Sub-Activity": {
+    heading: "Edit Sub Activity",
+    inputs:[{ sub: "Record new Sub Activities for",name:'name',type:"text",placeholder:"Describe The Sub-Activity"}],
+    func: async (id: number, formData: any) =>
+      await editSubActivity(id, formData),
+  },
+   "Update Sub-Activity-Coloumn": {
+    heading: "Update Sub Activity Coloumn",
+    inputs:[{sub: "Record new Sub Activities Coloumns for",name:'name',type:"text",placeholder:"Describe The Sub-Activity Coloumn"},{sub:"Enter Data Type",name:"type",type:"dropDown",placeholder:"Enter Type"}],
+    func: async (id: number, formData: any) =>
+      await editSubActivityColoumn(id, formData),
+  },
+  
 };
 const deleteValues = {
   "delete activity": {
@@ -71,8 +160,13 @@ const deleteValues = {
   },
   "delete sub Activity": {
     heading: "Delete Sub Activity",
-    sub: "Are You Sure You Want To Delete Sub Activity: ",
+    sub: "Are You Sure You Want To Delete Sub Activity ",
     func: async (id: number) => await deleteSubActivity(id),
+  },
+    "delete sub Activity coloumn": {
+    heading: "Delete Sub Activity Coloumn",
+    sub: "Are You Sure You Want To Delete Sub Activity Coloumn ",
+    func: async (id: number) => await deleteSubActivityColoumn(id),
   },
 };
 
@@ -81,15 +175,29 @@ const Form = ({
   refreshData,
   setShowOverLay,
   activity,
+  formData,
+  setFormData,
 }: {
   selectedColoumn: selectedColoumn;
   refreshData: () => void;
   activity: string;
+  formData:any,
+  setFormData:React.Dispatch<React.SetStateAction<any>>;
   setShowOverLay: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const [coloumnName, setColoumnName] = useState("");
+
   return (
-    <div className="absolute max-w-md border-0 rounded-2xl shadow max-h-58 z-110 h-full w-full bg-white flex justify-center">
+    <form onSubmit={async (e) => {
+              e.preventDefault()
+              const data = await addValues[activity as keyof typeof addValues].func(
+                selectedColoumn.id,
+                formData
+              );
+              if (data === "ok") {
+                setShowOverLay(false);
+                refreshData();
+              }
+            }} className="absolute max-w-md border-0 rounded-2xl shadow min-h-58 z-110 h-auto w-full bg-white flex justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -102,53 +210,67 @@ const Form = ({
               <PlusCircle size={20} />
             </div>
             <h3 className="text-xl font-semibold text-gray-800 tracking-tight">
-              {formvalues[activity as keyof typeof formvalues]?.heading}
+              {addValues[activity as keyof typeof addValues]?.heading}
             </h3>
           </div>
         </div>
 
-        <div className="px-6 pb-2 ">
-          <p className="text-sm pb-1 text-gray-500">
-            {formvalues[activity as keyof typeof formvalues]?.sub +
-              " " +
-              selectedColoumn.name}
-          </p>
-
-          <div className="relative group">
-            <input
-              value={coloumnName}
-              onChange={(e) => {
-                setColoumnName(e.target.value);
-              }}
-              placeholder="Describe the activity..."
-              className="w-full pl-4 pr-12 py-3 bg-gray-50 border-1  border-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400"
-            />
-
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-blue-600 transition-colors">
-              <Send size={18} />
-            </button>
-          </div>
+        <div className="px-6 pb-2">
+          {addValues[activity as keyof typeof addValues]?.inputs.map((input, i) => (
+            <div key={i} className="mt-2">
+              <p className="text-sm pb-1 text-gray-500">
+                {input.sub + " " + selectedColoumn.name}
+              </p>
+              <div className="relative group">
+                {input.type === "dropDown" ? (
+                  
+                  <select
+                  required
+                    value={formData[input.name] || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, [input.name]: e.target.value })
+                    }
+                    className="w-full pl-4 pr-12 py-3 bg-gray-50 border-1 border-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  ><option value="" disabled hidden>
+                      Select Type
+                    </option>
+                    {types.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    value={formData[input.name as keyof typeof formData] || ""}
+                    type={input.type}
+                    required
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        [input.name as keyof typeof formData]: e.target.value,
+                      })
+                    }
+                    placeholder={input.placeholder}
+                    className="w-full pl-4 pr-12 py-3 bg-gray-50 border-1 border-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                  />
+                )}
+              </div>
+            </div>
+          ))}
         </div>
+
         <div className="px-6 pb-6">
-          <button
-            onClick={async () => {
-              const data: string =
-                (await formvalues[activity as keyof typeof formvalues].func(
-                  selectedColoumn.id,
-                  coloumnName,
-                )) ?? "";
-              if (data === "ok") {
-                setShowOverLay(false);
-                refreshData();
-              }
-            }}
+          <button 
+          type="submit"
+            
             className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]"
           >
             Save Activity
           </button>
         </div>
       </motion.div>
-    </div>
+    </form>
   );
 };
 export const CropMainData = ({
@@ -158,6 +280,7 @@ export const CropMainData = ({
   crop: IndivitualCrop;
   refreshData: () => void;
 }) => {
+  console.log(crop,"sd")
   const [trackOpens, setTrackOpens] = useState<number[]>([]);
   const [trackSubStageOpen, setTrackSubStageOpen] = useState<number[]>([]);
   const [showOverLay, setShowOverLay] = useState(false);
@@ -166,8 +289,8 @@ export const CropMainData = ({
     id: 0,
     name: "",
   });
-
-  const formActivities = Object.keys(formvalues);
+  const [formData, setFormData] = useState<any>({});
+  const formActivities = Object.keys(addValues);
   const deleteActivities = Object.keys(deleteValues);
   console.log(deleteActivities)
   return (
@@ -176,6 +299,8 @@ export const CropMainData = ({
         <div className="fixed flex items-center justify-center top-0 right-0">
           {formActivities.includes(activity) && (
             <Form
+              formData={formData}
+              setFormData={setFormData}
               selectedColoumn={selectedColoumn}
               refreshData={refreshData}
               setShowOverLay={setShowOverLay}
@@ -216,7 +341,7 @@ export const CropMainData = ({
                     onClick={() => {
                       setShowOverLay(false);
                     }}
-                    className="min-w-1/3 px-3 w-auto py-3 bg-gray-300 border-gray-400 border-1 focus:outline-none hover:bg-gray-500 hover:text-white  font-medium rounded-xl transition-all shadow-lg active:scale-[0.98]"
+                    className="min-w-1/3 px-3 w-auto py-3 bg-gray-400/60 border-gray-500 text-gray-900/70  border-1 focus:outline-none hover:bg-gray-500 hover:text-white  font-medium rounded-xl transition-all shadow-lg active:scale-[0.98]"
                   >
                     Cancel
                   </button>
@@ -233,7 +358,7 @@ export const CropMainData = ({
                         refreshData();
                       }
                     }}
-                    className="min-w-1/3 w-auto px-3 py-3 bg-red-400 border-red-700 border-1 focus:outline-none hover:bg-red-700 text-white font-medium rounded-xl transition-all shadow-lg active:scale-[0.98]"
+                    className="min-w-1/3 w-auto px-3 py-3 bg-red-300 text-red-500 border-red-600 border-1 focus:outline-none hover:bg-red-700 hover:text-white font-medium rounded-xl transition-all shadow-lg active:scale-[0.98]"
                   >
                        {
                         deleteValues[activity as keyof typeof deleteValues]
@@ -260,7 +385,14 @@ export const CropMainData = ({
           </p>
         </div>
         <div className="flex gap-4 mr-12">
-          <button className="bg-white/80 border-gray-900/20 text-gray-700 border-1 flex items-center gap-2 rounded-lg h-12 px-5 text-xl ">
+          <button
+          onClick={() => {
+              setShowOverLay(true);
+              setSelectedColoumn({ id: crop.cropId, name: crop.cropName });
+              setActivity("Update Crop Details");
+              setFormData({"name":crop.cropName,"image":crop.cropImage})
+            }}
+           className="bg-white/80 border-gray-900/20 text-gray-700 border-1 flex items-center gap-2 rounded-lg h-12 px-5 text-xl ">
             <Pencil />
             Edit Crop
           </button>
@@ -269,6 +401,7 @@ export const CropMainData = ({
               setShowOverLay(true);
               setSelectedColoumn({ id: crop.cropId, name: crop.cropName });
               setActivity("Add new Activity");
+              setFormData({})
             }}
             className="bg-[#2bed2b] flex items-center gap-2 rounded-lg h-12 px-5 text-xl "
           >
@@ -311,17 +444,26 @@ export const CropMainData = ({
                       >
                         <Trash2 className="text-red-400 hover:text-red-700 transition-colors w-6 h-6" />
                       </button>
-                      <button>
+                      <button
+                                  onClick={() => {
+              setShowOverLay(true);
+              setSelectedColoumn({ id: crop.cropId, name: crop.cropName });
+              setActivity("Update Activity");
+              setFormData({"name":stage.stagename,"duration":stage.duration,"id":stage.sid})
+            }}
+                      >
                         <Pencil className="w-6 h-6" strokeWidth={1.5} />
                       </button>
                       <button
+                      className="text-gray-800 hover:text-green-600 hover:scale-120 transition-all"
                         onClick={() => {
-                          setShowOverLay(true);
-                          setActivity("Add new sub Activity");
-                          setSelectedColoumn({
-                            id: stage.sid,
-                            name: stage.stagename,
-                          });
+                            setShowOverLay(true);
+                            setActivity("Add new sub Activity");
+                            setFormData({})
+                            setSelectedColoumn({
+                              id: stage.sid,
+                              name: stage.stagename,
+                            });
                         }}
                       >
                         <Plus className="w-6 h-6" strokeWidth={1.5} />
@@ -334,7 +476,7 @@ export const CropMainData = ({
                               )
                             : setTrackOpens([...trackOpens, i])
                         }
-                        className={` rounded-full transition-all duration-300 ${trackOpens.includes(i) ? "bg-green-100 text-green-600" : "hover:bg-gray-100"}`}
+                        className={` rounded-full transition-all duration-300 bg-transparent p-1 hover:bg-gray-300 ${trackOpens.includes(i) ? "bg-green-100 text-green-600" : "hover:bg-gray-100"}`}
                       >
                         <motion.div
                           animate={{ rotate: trackOpens.includes(i) ? 180 : 0 }}
@@ -385,13 +527,31 @@ export const CropMainData = ({
                                   >
                                     <Trash2 className="text-red-400 hover:text-red-700 transition-colors w-6 h-6" />
                                   </button>
-                                  <button>
+                                  <button              onClick={() => {
+              setShowOverLay(true);
+              setSelectedColoumn({ id: stage.sid, name: stage.stagename });
+              setActivity("Update Sub-Activity");
+              setFormData({"name":substage.substagename,"id":substage.substageid})
+            }}>
                                     <Pencil
                                       className="w-6 h-6"
                                       strokeWidth={1.5}
                                     />
                                   </button>
-
+                                    <button
+                                    className="text-gray-800 hover:text-green-600 hover:scale-120 transition-all"
+                        onClick={() => {
+                          setShowOverLay(true);
+                          setActivity("Add new sub Activity Coloumn");
+                          setFormData({})
+                          setSelectedColoumn({
+                            id: substage.substageid,
+                            name: substage.substagename,
+                          });
+                        }}
+                      >
+                        <Plus className="w-6 h-6" strokeWidth={1.5} />
+                      </button>
                                   <button
                                     onClick={() =>
                                       trackSubStageOpen.includes(
@@ -408,7 +568,7 @@ export const CropMainData = ({
                                             substage.substageid,
                                           ])
                                     }
-                                    className={`p-2 rounded-full transition-all duration-300 ${trackSubStageOpen.includes(substage.substageid) ? "bg-green-100 text-green-600" : "hover:bg-gray-100"}`}
+                                    className={`p-2 rounded-full hover:bg-gray-300  transition-all duration-300 ${trackSubStageOpen.includes(substage.substageid) ? "bg-green-100 text-green-600" : "hover:bg-gray-100"}`}
                                   >
                                     <motion.div
                                       animate={{
@@ -454,15 +614,39 @@ export const CropMainData = ({
                                           }}
                                           className="flex items-center gap-3 text-gray-600 bg-white p-2 rounded border border-gray-200 shadow-sm"
                                         >
-                                          <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          <div className="w-1.5 h-1.5 rounded-full bg-sky-500" />
                                           <div className="flex justify-between items-center gap-8 flex-1">
                                             <p className="font-bold text-gray-700 min-w-[150px]">
                                               {coloumn.substagecolomn}
                                             </p>
-                                            <div>
-                                              <button>
+                                                                <p className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                      Type:{" "}
+                      <span className="font-medium text-gray-700">
+                        {coloumn.substagecoloumnvalue}
+                      </span>
+                    </p>
+                                            <div className="space-x-2">
+                                              <button
+                                               onClick={() => {
+                                      setShowOverLay(true);
+                                      setActivity("delete sub Activity coloumn");
+                                      setSelectedColoumn({
+                                        id: coloumn.substagedataid,
+                                        name: coloumn.substagecolomn,
+                                      });
+                                    }}>
                                                 <Trash2 className="text-red-400 hover:text-red-700 transition-colors w-6 h-6" />
                                               </button>
+                                                                    <button
+                                  onClick={() => {
+              setShowOverLay(true);
+              setSelectedColoumn({ id: substage.substageid, name: substage.substagename });
+              setActivity("Update Sub-Activity-Coloumn");
+              setFormData({"name":coloumn.substagecolomn,"type":coloumn.substagecoloumnvalue,"id":coloumn.substagedataid})
+            }}
+                      >
+                        <Pencil className="w-6 h-6" strokeWidth={1.5} />
+                      </button>
                                             </div>
                                           </div>
                                         </motion.div>
