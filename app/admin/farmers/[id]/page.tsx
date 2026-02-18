@@ -16,7 +16,7 @@ import {
   Phone 
 } from "lucide-react";
 import Link from "next/link";
-import { fullFarmerDetails } from "../../utils/types";
+import { FullFarmerDetails } from "../../utils/types";
 
 // --- TYPES ---
 interface ListRowProps {
@@ -60,7 +60,7 @@ export default function FarmerDetailsPage({ params }: { params: Promise<{ id: st
   const resolvedParams = use(params);
   const farmerId = resolvedParams.id;
 
-  const [farmer, setFarmer] = useState<fullFarmerDetails | null>(null);
+  const [farmer, setFarmer] = useState<FullFarmerDetails | null>(null);
   const [activeCrop, setActiveCrop] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +72,7 @@ export default function FarmerDetailsPage({ params }: { params: Promise<{ id: st
         
         // Find specific farmer
         const selected = allFarmers.find(
-          (f: fullFarmerDetails) => String(f.farmerId) === farmerId
+          (f: FullFarmerDetails) => String(f.farmerId) === farmerId
         );
         
         if (selected) {
