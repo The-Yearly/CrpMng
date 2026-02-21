@@ -48,7 +48,7 @@ model farmer {
   migrantStatus       MigrantStatus @default(Local)
   landHoldingType     LandHoldingType @default(Own)
   farmerAssociation   String   @default("")
-
+  state               String  @default("")
   gender              Gender @default(Male)
   agentId             Int
   aaid                agent             @relation(fields: [agentId], references: [agentId])
@@ -72,6 +72,7 @@ model crop {
   cropName          String
   cropDesc          String
   cropImage         String
+  cropColor         String @default("#C92F0A")
   farmercropstables farmercropstable[]
   cropplottables    cropplottable[]
   cropStages        cropstages[]

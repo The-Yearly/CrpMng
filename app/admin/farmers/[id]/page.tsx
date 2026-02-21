@@ -1,73 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
-import Image from "next/image";
 import axios from "axios";
-import {
-  MapPin,
-  Calendar,
-  ChevronRight,
-  Bell,
-  Maximize,
-  ClipboardCheck,
-  Zap,
-  ChevronDown,
-  ArrowLeft,
-  Phone,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { FullFarmerDetails } from "../../utils/types";
-
-interface ListRowProps {
-  icon: React.ReactNode;
-  label: string;
-  value?: string | number;
-  isEditing?: boolean;
-  editNode?: React.ReactNode;
-}
-
-function ListRow({
-  icon,
-  label,
-  value,
-  subValue,
-  badge,
-  noBorder,
-}: ListRowProps) {
-  return (
-    <div
-      className={`flex items-center justify-between py-5 px-4 rounded-2xl group cursor-pointer hover:bg-slate-50 transition-all ${noBorder ? "" : "border-b border-slate-50"}`}
-    >
-      <div className="flex items-center gap-5">
-        <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:text-black group-hover:bg-white group-hover:shadow-md border border-transparent group-hover:border-slate-100 transition-all">
-          {icon}
-        </div>
-        <div>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">
-            {label}
-          </p>
-          <div className="flex items-center gap-3">
-            <p className="text-md font-bold text-black">{value}</p>
-            {badge && (
-              <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter">
-                {badge}
-              </span>
-            )}
-          </div>
-          {subValue && (
-            <p className="text-xs text-slate-400 font-medium mt-1">
-              {subValue}
-            </p>
-          )}
-        </div>
-      </div>
-      <ChevronRight
-        size={18}
-        className="text-slate-200 group-hover:text-black group-hover:translate-x-1 transition-all"
-      />
-    </div>
-  );
-}
+import { FullFarmerDetails, selectedPlot } from "../../utils/types";
+import { FarmerSideCard } from "./components/farmerSideCard";
+import { FarmerMain } from "./components/farmerMain";
 
 export default function FarmerDetailsPage({
   params,
@@ -76,52 +15,49 @@ export default function FarmerDetailsPage({
 }) {
   const resolvedParams = use(params);
   const farmerId = resolvedParams.id;
-
-  const [farmer, setFarmer] = useState<FullFarmerDetails | null>(null);
-  const [activeCrop, setActiveCrop] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>("details");
   const [isEditing, setIsEditing] = useState(false);
-
-  const [editState, setEditState] = useState({
-    name: "",
-    gender: "Male",
-    fatherName: "Ramesh Kumar",
+  const [farmer, setFarmer] = useState<FullFarmerDetails>({
+    farmerName: "",
+    gender: "",
+    farmerFather: "",
     phone: "",
-    farmerCode: "",
-    country: "India",
-    state: "Telangana",
-    district: "Warangal",
-    tehsil: "Hanamkonda",
-    village: "Kothapet",
-    season: "Kharif 2025",
-    aadhar: "XXXX XXXX 4521",
-    age: "42",
-    migrantStatus: "Local",
-    landHolding: "4.5 Acres (Own)",
-    association: "Telangana Rytu Sangham",
+    farmCode: 0,
+    country: "",
+    state: "",
+    district: "",
+    tehsil: "",
+    village: "",
+    season: "",
+    aadharNumber: "",
+    farmerAge: 0,
+    migrantStatus: "",
+    landHoldingType: "",
+    farmerAssociation: "",
+    agentId: 0,
+    farmerId: 0,
+    farmerPic: farmerId,
+    noOfPlots: 0,
+    address: "",
   });
-
+  const [plots, setPlots] = useState<selectedPlot[]>([]);
+  const [editFarmer, setEditFarmer] = useState(farmer);
   useEffect(() => {
     const fetchFarmerData = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/getFarmerDets`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/getFarmerDets/` + farmerId,
         );
-        const allFarmers = res.data.data;
-
-        const selected = allFarmers.find(
-          (f: FullFarmerDetails) => String(f.farmerId) === farmerId,
-        );
-
-        if (selected) {
-          setFarmer(selected);
-          setEditState((prev) => ({
-            ...prev,
-            name: selected.name,
-            phone: selected.phone,
-            farmerCode: String(selected.farmerId),
-          }));
+        const farmerResp = res.data.data;
+        if (farmerResp) {
+          setFarmer(farmerResp[0]);
+          setEditFarmer(farmerResp[0]);
+          const res = await axios.get(
+            process.env.NEXT_PUBLIC_BACKEND_URL +
+              "/getPlotDetailsByFarmer/" +
+              farmerResp[0].farmerId,
+          );
+          setPlots(res.data.data);
         }
       } catch (error) {
         console.error("Error fetching farmer details:", error);
@@ -132,17 +68,21 @@ export default function FarmerDetailsPage({
     fetchFarmerData();
   }, [farmerId]);
 
-  const handleSave = () => {
-    if (farmer)
-      setFarmer({ ...farmer, name: editState.name, phone: editState.phone });
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (editFarmer) {
+      const res = await axios.put(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/updateFarmer",
+        editFarmer,
+      );
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {
     if (farmer)
-      setEditState((prev) => ({
+      setFarmer((prev) => ({
         ...prev,
-        name: farmer.name,
+        name: farmer.farmerName,
         phone: farmer.phone,
       }));
     setIsEditing(false);
@@ -150,11 +90,11 @@ export default function FarmerDetailsPage({
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#f2f4ee]">
+      <div className="flex h-screen w-full items-center justify-center ">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-black" />
-          <p className="text-xs font-black uppercase tracking-widest text-slate-400">
-            Loading Profile...
+          <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-stone-200 border-t-green-600" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+            Loading Profile…
           </p>
         </div>
       </div>
@@ -163,9 +103,9 @@ export default function FarmerDetailsPage({
 
   if (!farmer) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#f2f4ee]">
+      <div className="flex h-screen w-full items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-stone-900">
             Farmer Not Found
           </h1>
           <Link
@@ -180,12 +120,11 @@ export default function FarmerDetailsPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4">
-      {/* Navigation */}
-      <div className="w-full max-w-2xl mb-6">
+    <div className="min-h-screen">
+      <div className="w-full mx-auto px-4 sm:px-6 py-5">
         <Link
           href="/admin/farmers"
-          className="inline-flex items-center gap-2 text-slate-400 hover:text-black transition-colors font-bold text-xs tracking-widest uppercase"
+          className="inline-flex items-center gap-2 text-stone-400 hover:text-stone-800 transition-colors font-bold text-[10px] tracking-[0.2em] uppercase mb-8 group"
         >
           <ArrowLeft
             size={14}
@@ -193,127 +132,26 @@ export default function FarmerDetailsPage({
           />
           Back to Directory
         </Link>
-
-      {/* Main Card Container */}
-      <div className="w-full max-w-2xl bg-white rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col h-[750px]">
-        {/* 1. STICKY BRANDED HEADER */}
-        <div className="bg-black p-8 flex-shrink-0 flex justify-between items-center border-b border-white/5">
-          <div className="flex gap-6 items-center">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-zinc-800 bg-zinc-900 relative shadow-2xl">
-              <Image
-                src={
-                  farmer.farmerImage ||
-                  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200"
-                }
-                alt={farmer.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">
-                {farmer.name}
-              </h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">
-                  ID: {farmer.farmerId}
-                </span>
-                <div className="w-1 h-1 rounded-full bg-zinc-700" />
-                <span className="text-amber-500 text-[10px] font-black uppercase tracking-[0.2em]">
-                  Agent {farmer.agentId}
-                </span>
-              </div>
-            </div>
-          </div>
-
-        {/* 2. SCROLLABLE CONTENT BODY */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-white">
-          <div className="p-8 pb-4">
-            {/* Field Selection */}
-            <div className="mb-8">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
-                Field Selection
-              </p>
-              <div className="relative">
-                <select
-                  value={activeCrop}
-                  onChange={(e) => setActiveCrop(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-100 p-4 pr-12 rounded-2xl text-sm font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-black/5 transition-all outline-none"
-                >
-                  {farmer.crops.map((c) => (
-                    <option key={c} value={c}>
-                      {c} CULTIVATION
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                  size={18}
-                />
-              </div>
-
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">
-              Operational Data
-            </p>
-
-            {/* Data Rows */}
-            <div className="space-y-1">
-              <ListRow
-                icon={<MapPin size={20} />}
-                label="Primary Location"
-                value={farmer.locations[0]}
-                subValue="Main Registered Zone"
-              />
-              <ListRow
-                icon={<Phone size={20} />}
-                label="Contact"
-                value={farmer?.phone||1}
-              />
-              <ListRow
-                icon={<Maximize size={20} />}
-                label="Perimeter Mapping"
-                value={`${farmer.noOfPlots} Active Plots`}
-                subValue={`Managed land for ${activeCrop}`}
-              />
-              <ListRow
-                icon={<Calendar size={20} />}
-                label="Registration Date"
-                value="2025-08-14"
-              />
-              <ListRow
-                icon={<Bell size={20} />}
-                label="Safety Status"
-                value="No Active Alerts"
-                badge="Safe"
-              />
-              <ListRow
-                icon={<ClipboardCheck size={20} />}
-                label="Reports"
-                value="View Audit Logs"
-                noBorder
-              />
-            </div>
-          </div>
+        <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+          <FarmerSideCard
+            farmer={farmer}
+            handleCancel={handleCancel}
+            handleSave={handleSave}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+          />
+          <FarmerMain
+            farmer={editFarmer}
+            plots={plots}
+            colorData={farmer.crops || {}}
+            isEditing={isEditing}
+            setFarmer={setEditFarmer}
+            handleCancel={handleCancel}
+            handleSave={handleSave}
+          />
         </div>
-
         <div className="h-12" />
       </div>
-
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 5px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #f1f5f9;
-          border-radius: 20px;
-        }
-        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-        }
-      `}</style>
     </div>
   );
 }

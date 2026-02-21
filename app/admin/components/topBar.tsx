@@ -3,8 +3,10 @@
 import { Settings, Bell, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 export default function TopBar() {
   const pathname = usePathname();
+
   const dashboardItems = [
     { label: "Dashboard", href: "/admin" },
     { label: "Plantings", href: "/admin/plantings" },
@@ -12,8 +14,11 @@ export default function TopBar() {
     { label: "Crops", href: "/admin/crops" },
   ];
 
+  const isActive = (href: string) =>
+    href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+
   return (
-    <div className="flex justify-between items-center mt-5 ml-3 ">
+    <div className="flex justify-between items-center mt-5 ml-3">
       <div className="border border-neutral-400 rounded-3xl px-4 py-2">
         <p className="text-xl font-light">Crop App</p>
       </div>
@@ -24,7 +29,7 @@ export default function TopBar() {
               key={i}
               href={item.href}
               className={`flex items-center px-4 h-14 rounded-full transition-colors ${
-                item.href === pathname
+                isActive(item.href)
                   ? "bg-gray-900 h-full text-white"
                   : "text-gray-800 hover:bg-gray-200"
               }`}
@@ -35,7 +40,11 @@ export default function TopBar() {
         </div>
         <Link
           href={"settings"}
-          className={` shadow flex items-center h-14 px-4 space-x-2 rounded-full transition ${pathname === "/admin/settings" ? "bg-gray-900  text-white" : "text-gray-800 bg-white/50 hover:bg-gray-200"} `}
+          className={`shadow flex items-center h-14 px-4 space-x-2 rounded-full transition ${
+            pathname === "/admin/settings"
+              ? "bg-gray-900 text-white"
+              : "text-gray-800 bg-white/50 hover:bg-gray-200"
+          }`}
         >
           <Settings className="w-5 h-5" />
           <p className="text-sm font-medium">Settings</p>

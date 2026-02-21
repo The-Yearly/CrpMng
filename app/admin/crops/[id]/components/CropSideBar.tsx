@@ -45,7 +45,12 @@ export const CropSideBar = ({
 
       <div className="flex-grow px-8 py-8">
         {plots.length != 0 && (
-          <MapCard showFilter={false} Plots={plots} key={1} />
+          <MapCard
+            dataColors={{ [crop.cropName]: crop.cropColor }}
+            showFilter={false}
+            Plots={plots}
+            key={1}
+          />
         )}
       </div>
     </div>

@@ -4,12 +4,12 @@ import { ChevronDown, Pencil, PlusCircle, Trash2, Plus } from "lucide-react";
 import { useState } from "react";
 import { Form } from "@/app/admin/components/Form";
 import { cropForms } from "../utils/cropActions";
+import { colorData } from "@/app/admin/components/dashBoard";
 import { deleteValues } from "../utils/cropActions";
 export interface selectedColoumn {
   id: number;
   name: string;
 }
-
 
 export const CropMainData = ({
   crop,
@@ -18,11 +18,11 @@ export const CropMainData = ({
   crop: IndivitualCrop;
   refreshData: () => void;
 }) => {
-  console.log(crop, "sd");
   const [trackOpens, setTrackOpens] = useState<number[]>([]);
   const [trackSubStageOpen, setTrackSubStageOpen] = useState<number[]>([]);
   const [showOverLay, setShowOverLay] = useState(false);
   const [activity, setActivity] = useState("");
+  const [datacolors, setDataColors] = useState<colorData>({});
   const [selectedColoumn, setSelectedColoumn] = useState<selectedColoumn>({
     id: 0,
     name: "",
@@ -30,7 +30,6 @@ export const CropMainData = ({
   const [formData, setFormData] = useState<any>({});
   const formActivities = Object.keys(cropForms);
   const deleteActivities = Object.keys(deleteValues);
-  console.log(deleteActivities);
   return (
     <div className="col-span-2 flex-col mt-8">
       {showOverLay && (
@@ -43,7 +42,6 @@ export const CropMainData = ({
               refreshData={refreshData}
               setShowOverLay={setShowOverLay}
               activity={cropForms[activity as keyof typeof cropForms]}
-              
             />
           )}
           {deleteActivities.includes(activity) && (
@@ -92,7 +90,6 @@ export const CropMainData = ({
                         ].func(selectedColoumn.id)) ?? "";
                       console.log(data);
                       if (data == "ok") {
-                        console.log("HI");
                         setShowOverLay(false);
                         refreshData();
                       }
@@ -129,7 +126,11 @@ export const CropMainData = ({
               setShowOverLay(true);
               setSelectedColoumn({ id: crop.cropId, name: crop.cropName });
               setActivity("Update Crop Details");
-              setFormData({ name: crop.cropName, image: crop.cropImage });
+              setFormData({
+                cropName: crop.cropName,
+                cropPic: crop.cropImage,
+                cropColor: crop.cropColor,
+              });
             }}
             className="bg-white/80 border-gray-900/20 text-gray-700 border-1 flex items-center gap-2 rounded-lg h-12 px-5 text-xl "
           >

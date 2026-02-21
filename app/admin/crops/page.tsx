@@ -28,9 +28,9 @@ export default function Crops() {
   };
   const inputs = Object.keys(newType?.inputs || {});
 
-    type formDataType = {
-      [K in (typeof inputs)[number]]: string;
-    };
+  type formDataType = {
+    [K in (typeof inputs)[number]]: string;
+  };
   useEffect(() => {
     fetchCrops();
   }, []);
@@ -39,7 +39,7 @@ export default function Crops() {
     const res = await axios.get(
       process.env.NEXT_PUBLIC_BACKEND_URL + "/getCrops",
     );
-    console.log("sd")
+    console.log("sd");
     setData(res.data.data);
   };
 
@@ -54,7 +54,7 @@ export default function Crops() {
         searchBarPlaceHolder="Search Crops (ID or Name)"
       />
       <Grid<CropGridType, newCropType, formDataType>
-        newData={"Add New Crop"}
+        newData={"Crop"}
         searchValue={searchValue}
         searchColoumn="cropName"
         searchColoumn2="cropId"
@@ -76,7 +76,7 @@ export default function Crops() {
         Card={CropCard}
         refreshData={fetchCrops}
         inputValues={newType}
-        onAdd={async (item:formDataType) => {
+        onAdd={async (item: formDataType) => {
           try {
             await axios.post(
               process.env.NEXT_PUBLIC_BACKEND_URL + "/addCrop",

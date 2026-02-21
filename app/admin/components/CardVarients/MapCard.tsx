@@ -2,7 +2,6 @@
 import { selectedPlot } from "../../utils/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { LatLngTuple } from "leaflet";
-import React from "react";
 import {
   Marker,
   TileLayer,
@@ -15,7 +14,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -24,14 +23,14 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-const crops = ["Select Crop", "CHILLI", "TURMERIC", "GINGER", "MARIGOLD"];
-const colourOptions = {
-  CHILLI: { color: "red", fillOpacity: 0.6 },
-  TURMERIC: { color: "yellow", fillOpacity: 0.8 },
-  GINGER: { color: "green", fillOpacity: 0.6 },
-  MARIGOLD: { color: "orange", fillOpacity: 0.6 },
-};
-
+import Link from "next/link";
+import { colorData } from "../dashBoard";
+// const colourOptions = {
+//   CHILLI: { color: "red", fillOpacity: 0.6 },
+//   TURMERIC: { color: "yellow", fillOpacity: 0.8 },
+//   GINGER: { color: "green", fillOpacity: 0.6 },
+//   MARIGOLD: { color: "orange", fillOpacity: 0.6 },
+// };
 const markerIcon = L.icon({
   iconUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
@@ -104,10 +103,15 @@ const MapUpdater = ({ lat, lng }: { lat: number; lng: number }) => {
 export const MapCardClient = ({
   Plots,
   showFilter,
+  dataColors,
 }: {
   Plots: selectedPlot[];
   showFilter: boolean;
+  dataColors: colorData;
 }) => {
+  const filters = ["Select Crop"];
+  filters.push(...Object.keys(dataColors));
+
   const cardAnimationLeft = {
     x: -100,
     opacity: 0,
@@ -152,22 +156,30 @@ export const MapCardClient = ({
         prev === 0 ? validLocations.length - 1 : prev - 1,
       );
     };
-    console.log(validLocations);
+    const lastValidCenter = useRef<LatLngTuple>([
+      validLocations?.[currentLocation]?.plot?.[0]?.[0] ?? 10,
+      validLocations?.[currentLocation]?.plot?.[0]?.[1] ?? 76,
+    ]);
+    const hasValidPlot = validLocations?.[currentLocation]?.plot?.length > 0;
+
+    if (hasValidPlot) {
+      lastValidCenter.current = [
+        validLocations[currentLocation].plot[0][0],
+        validLocations[currentLocation].plot[0][1],
+      ];
+    }
+
+    const center = lastValidCenter.current;
+    console.log(dataColors);
     return (
       <div className="bg-white rounded-2xl flex w-full h-full md:w-full flex-col relative  overflow-hidden  ">
         <MapContainer
           className="z-10 h-full w-full"
-          center={[
-            validLocations[currentLocation].plot[0][0],
-            validLocations[currentLocation].plot[0][1],
-          ]}
+          center={center}
           zoom={30}
           scrollWheelZoom={false}
         >
-          <MapUpdater
-            lat={validLocations[currentLocation].plot[0][0]}
-            lng={validLocations[currentLocation].plot[0][1]}
-          />
+          {hasValidPlot && <MapUpdater lat={center[0]} lng={center[1]} />}
 
           <TileLayer
             attribution="© Esri, Maxar, Earthstar Geographics"
@@ -184,17 +196,19 @@ export const MapCardClient = ({
               <React.Fragment key={i}>
                 <Polygon
                   positions={area.plot}
-                  pathOptions={
-                    colourOptions[area.crop as keyof typeof colourOptions]
-                  }
+                  pathOptions={{
+                    color: dataColors[area.crop],
+                    fillColor: dataColors[area.crop],
+                    fillOpacity: 0.6,
+                  }}
                   eventHandlers={{
                     click: () => {
                       console.log(area);
                       setExitdir("Right");
                       setSelectedPlot({
                         ...area,
-                        name: area.name,
-                        farmerImage: area.farmerImage,
+                        farmerName: area.farmerName,
+                        farmerPic: area.farmerPic,
                         noOfPlots: area.noOfPlots,
                         phone: area.phone,
                       });
@@ -219,9 +233,11 @@ export const MapCardClient = ({
             <ArrowLeft />
           </button>
 
-          <h1 className="text-lg font-semibold text-gray-800 text-center flex-1">
-            {validLocations[currentLocation].location}
-          </h1>
+          {validLocations[currentLocation] && (
+            <h1 className="text-lg font-semibold text-gray-800 text-center flex-1">
+              {validLocations[currentLocation].location}
+            </h1>
+          )}
           <button
             onClick={changePosPlus}
             className="p-2 rounded-full hover:bg-gray-200 transition"
@@ -255,7 +271,7 @@ export const MapCardClient = ({
                 }}
                 className="flex flex-col border-t border-gray-200 overflow-hidden"
               >
-                {crops.map((crop, i) => (
+                {filters.map((crop, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: -10 }}
@@ -292,47 +308,49 @@ export const MapCardClient = ({
               exit={exitDir == "Down" ? cardAnimationDown : cardAnimationLeft}
               className="absolute bottom-4 left-4 w-64 md:w-72 z-20 bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
             >
-              <div className="w-full h-24 md:h-32 relative">
-                <button
-                  className="absolute z-10 rounded-full right-2 top-2 w-8 h-8 flex items-center justify-center transition-colors bg-gray-50 hover:bg-gray-200"
-                  onClick={() => {
-                    setExitdir("Down");
-                    setTimeout(() => setSelectedPlot(null));
-                  }}
-                >
-                  <X strokeWidth={1.5} />
-                </button>
-                <Image
-                  alt="Plot Image"
-                  src={selectedPlot.plotImage}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-
-              <div className="relative p-2 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <h3 className="text-xs md:text-sm font-semibold text-gray-800">
-                    Farmer: {selectedPlot.name}
-                  </h3>
-                  <p className="text-xs text-gray-500">Plot Info</p>
-                </div>
-                <div className="w-10 h-10 relative rounded-full overflow-hidden border border-gray-200">
+              <Link href={"admin/farmers/" + selectedPlot.farmerId}>
+                <div className="w-full h-24 md:h-32 relative">
+                  <button
+                    className="absolute z-10 rounded-full right-2 top-2 w-8 h-8 flex items-center justify-center transition-colors bg-gray-50 hover:bg-gray-200"
+                    onClick={() => {
+                      setExitdir("Down");
+                      setTimeout(() => setSelectedPlot(null));
+                    }}
+                  >
+                    <X strokeWidth={1.5} />
+                  </button>
                   <Image
-                    alt="Farmer Image"
-                    src={selectedPlot.farmerImage}
+                    alt="Plot Image"
+                    src={selectedPlot.plotImage}
                     fill
                     className="object-cover"
                     priority
                   />
                 </div>
-              </div>
 
-              <div className="px-2 pb-2 text-xs md:text-sm text-gray-700 flex justify-between">
-                <span>Area:{AreaCalculator(selectedPlot.plot)}m²</span>
-                <span>Crop: {selectedPlot.crop}</span>
-              </div>
+                <div className="relative p-2 flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <h3 className="text-xs md:text-sm font-semibold text-gray-800">
+                      Farmer: {selectedPlot.farmerName}
+                    </h3>
+                    <p className="text-xs text-gray-500">Plot Info</p>
+                  </div>
+                  <div className="w-10 h-10 relative rounded-full overflow-hidden border border-gray-200">
+                    <Image
+                      alt="Farmer Image"
+                      src={selectedPlot.farmerPic}
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
+
+                <div className="px-2 pb-2 text-xs md:text-sm text-gray-700 flex justify-between">
+                  <span>Area:{AreaCalculator(selectedPlot.plot)}m²</span>
+                  <span>Crop: {selectedPlot.crop}</span>
+                </div>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>

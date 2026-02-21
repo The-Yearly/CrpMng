@@ -12,18 +12,23 @@ const MapCard = dynamic(
     ssr: false,
   },
 );
-
+export type colorData = Record<string, string>;
 export default function AdminDashboard() {
   const [plots, setPlots] = useState<selectedPlot[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [filters, setFilters] = useState<filterType[]>([]);
+  const [datacolors, setDataColors] = useState<colorData>({});
   useEffect(() => {
     const fetchData = async () => {
       const res = await axios.get(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/getMapDetails",
       );
-      console.log(res.data);
       setPlots(res.data.data);
+      const resp = await await axios.get(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/getQuickCropsOverview",
+      );
+      setDataColors(resp.data.data);
+      console.log(resp.data.data);
     };
     fetchData();
   }, []);
@@ -40,7 +45,9 @@ export default function AdminDashboard() {
       <div className="mt-12 px-10 gap-1 grid grid-cols-2 md:grid-cols-4 overflow-hidden">
         <CropCard />
         <div className=" bg-amber-100 col-span-1 md:col-span-2 rounded-2xl overflow-hidden min-h-[300px] w-full ">
-          {plots.length != 0 && <MapCard showFilter={true} Plots={plots} />}
+          {plots.length != 0 && (
+            <MapCard dataColors={datacolors} showFilter={true} Plots={plots} />
+          )}
         </div>
       </div>
     </>

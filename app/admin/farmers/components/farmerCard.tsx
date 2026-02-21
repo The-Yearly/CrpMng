@@ -10,21 +10,22 @@ export const FarmersCard = ({
   data: FullFarmerDetails;
   onDeleteClick?: () => void;
 }) => {
+  console.log(data.crops);
   return (
     <div className="relative bg-white rounded-xl shadow-sm hover:shadow-lg transition duration-1000">
       <Link href={"farmers/" + data.farmerId}>
         <div className="p-5">
           <div className="flex gap-4 mb-4">
             <Image
-              src={data.farmerImage}
-              alt={data.name}
+              src={data.farmerPic}
+              alt={data.farmerName}
               width={64}
               height={64}
               className="rounded-full object-cover"
             />
 
             <div>
-              <h3 className="font-semibold">{data.name}</h3>
+              <h3 className="font-semibold">{data.farmerName}</h3>
               <p className="text-sm text-gray-500">
                 Farmer ID: {data.farmerId}
               </p>
@@ -36,11 +37,12 @@ export const FarmersCard = ({
               <User size={16} />
               {data.agentId}
             </div>
-
-            <div className="flex gap-2 items-center">
-              <MapPin size={16} />
-              {data.locations[0]}
-            </div>
+            {data.locations?.[0] && (
+              <div className="flex gap-2 items-center">
+                <MapPin size={16} />
+                {data.locations[0]}
+              </div>
+            )}
 
             <div className="flex gap-2 items-center">
               <Sprout size={16} />
@@ -52,17 +54,26 @@ export const FarmersCard = ({
               {data.phone}
             </div>
           </div>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            {data.crops.map((crop) => (
-              <span
-                key={crop}
-                className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded"
-              >
-                {crop}
-              </span>
-            ))}
-          </div>
+          {data.crops && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {data.crops != undefined &&
+                (() => {
+                  const crops = data.crops;
+                  return Object.keys(crops).map((crop, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-1 text-xs text-green-700 rounded"
+                      style={{
+                        backgroundColor: crops[crop] + "20",
+                        color: `color-mix(in srgb, ${crops[crop]} 70%, black)`,
+                      }}
+                    >
+                      {crop}
+                    </span>
+                  ));
+                })()}
+            </div>
+          )}
         </div>
       </Link>
       <button

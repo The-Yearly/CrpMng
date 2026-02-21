@@ -12,9 +12,9 @@ export interface plotType {
 export interface farmerType {
   agentId: number;
   farmerId: number;
-  name: string;
-  noOfPlots?: number;
-  farmerImage: string;
+  farmerName: string;
+  noOfPlots: number;
+  farmerPic: string;
   phone?: string;
 }
 
@@ -32,7 +32,22 @@ export interface PlotDets extends plotType {
 }
 
 export interface fullFarmerDetails extends farmerType {
-  crops: string[];
+  farmerFather?: string;
+  address?: string;
+  country?: string;
+  district?: string;
+  tehsil?: string;
+  village?: string;
+  season?: string;
+  state?: string;
+  farmCode?: number;
+  aadharNumber?: string;
+  farmerAge?: number;
+  migrantStatus?: string;
+  landHoldingType?: string;
+  farmerAssociation?: string;
+  gender?: string;
+  crops: Record<string, string>;
   locations: string[];
 }
 
@@ -47,6 +62,7 @@ export interface CropGridType {
   cropName: string;
   cropImage: string;
   cropDesc?: string;
+  cropColor: string;
   stats: {
     totalFarmers: number;
     totalPlots: number;

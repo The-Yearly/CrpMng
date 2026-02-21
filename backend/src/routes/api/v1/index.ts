@@ -19,6 +19,28 @@ const adapter = new PrismaPg({
 });
 console.log(process.env.DATABASE_URL);
 const client = new PrismaClient({ adapter });
+
+router.get("/getQuickCropsOverview", async (req, res) => {
+  const response = await client.crop.findMany({
+    select: {
+      cropName: true,
+      cropColor: true,
+    },
+  });
+  if (response) {
+    const formattedResp = response.reduce<Record<string, string>>(
+      (acc, crop) => {
+        acc[crop.cropName] = crop.cropColor;
+        return acc;
+      },
+      {},
+    );
+    if (formattedResp) {
+      res.status(200).json({ data: formattedResp });
+    }
+  }
+});
+
 router.get("/getMapDetails", async (req, res) => {
   console.log("Hi");
   const response = await client.plot.findMany({
@@ -37,6 +59,11 @@ router.get("/getMapDetails", async (req, res) => {
           agentId: true,
         },
       },
+      _count: {
+        select: {
+          cropplottables: true,
+        },
+      },
     },
   });
   console.log(response);
@@ -45,12 +72,13 @@ router.get("/getMapDetails", async (req, res) => {
       agentId: crop.fid.agentId,
       crop: crop.cropplottables[0]?.cid.cropName || "unassigned",
       farmerId: crop.farmerId,
-      farmerImage: crop.fid.farmerPic,
-      name: crop.fid.farmerName,
+      farmerPic: crop.fid.farmerPic,
+      farmerName: crop.fid.farmerName,
       location: crop.location,
       plot: crop.plotCords as LatLngTuple[],
       plotId: crop.plotId,
       plotImage: crop.plotImage,
+      noOfPlots: crop._count.cropplottables,
     }));
     res.json({ data: formattedResp });
   }
@@ -62,27 +90,210 @@ router.get("/getFarmerDets", async (req, res) => {
       agentId: true,
       farmerName: true,
       farmerId: true,
+      aadharNumber: true,
+      address: true,
+      country: true,
+      district: true,
+      farmCode: true,
+      farmerAge: true,
+      farmerAssociation: true,
+      farmerFather: true,
+      gender: true,
+      landHoldingType: true,
+      migrantStatus: true,
+      season: true,
+      tehsil: true,
+      village: true,
       phone: true,
+      state: true,
       farmerPic: true,
       _count: { select: { plots: true } },
       plots: true,
-      farmercropstables: { select: { cid: { select: { cropName: true } } } },
+      farmercropstables: {
+        select: { cid: { select: { cropName: true, cropColor: true } } },
+      },
     },
   });
   if (resp) {
     const formattedResp: fullFarmerDetails[] = resp.map((farmer) => ({
       agentId: farmer.agentId,
       farmerId: farmer.farmerId,
-      farmerImage: farmer.farmerPic,
-      name: farmer.farmerName,
+      farmerPic: farmer.farmerPic,
+      farmerName: farmer.farmerName,
       noOfPlots: farmer._count.plots,
       phone: farmer.phone,
       locations: farmer.plots.map((plot) => plot.location),
-      crops:
-        farmer.farmercropstables?.map((crop) => crop.cid.cropName) ||
-        "unassigned",
+      aadharNumber: farmer.aadharNumber,
+      address: farmer.address,
+      country: farmer.country,
+      district: farmer.district,
+      farmCode: farmer.farmCode,
+      farmerAge: farmer.farmerAge,
+      farmerFather: farmer.farmerFather,
+      farmerAssociation: farmer.farmerAssociation,
+      gender: farmer.gender,
+      landHoldingType: farmer.landHoldingType,
+      season: farmer.season,
+      tehsil: farmer.tehsil,
+      migrantStatus: farmer.migrantStatus,
+      village: farmer.village,
+      state: farmer.state,
+      crops: farmer.farmercropstables?.reduce<Record<string, string>>(
+        (acc, crop) => {
+          acc[crop.cid.cropName] = crop.cid.cropColor;
+          return acc;
+        },
+        {},
+      ),
     }));
     res.json({ data: formattedResp });
+  }
+});
+
+router.get("/getFarmerDets/:id", async (req, res) => {
+  const id = req.params.id;
+  const resp = await client.farmer.findMany({
+    where: {
+      farmerId: parseInt(id),
+    },
+    select: {
+      agentId: true,
+      farmerName: true,
+      farmerId: true,
+      aadharNumber: true,
+      address: true,
+      country: true,
+      district: true,
+      farmCode: true,
+      farmerAge: true,
+      farmerAssociation: true,
+      farmerFather: true,
+      gender: true,
+      landHoldingType: true,
+      migrantStatus: true,
+      season: true,
+      tehsil: true,
+      village: true,
+      phone: true,
+      state: true,
+      farmerPic: true,
+      _count: { select: { plots: true } },
+      plots: true,
+      farmercropstables: {
+        select: { cid: { select: { cropName: true, cropColor: true } } },
+      },
+    },
+  });
+  if (resp) {
+    const formattedResp: fullFarmerDetails[] = resp.map((farmer) => ({
+      agentId: farmer.agentId,
+      farmerId: farmer.farmerId,
+      farmerPic: farmer.farmerPic,
+      farmerName: farmer.farmerName,
+      noOfPlots: farmer._count.plots,
+      phone: farmer.phone,
+      locations: farmer.plots.map((plot) => plot.location),
+      aadharNumber: farmer.aadharNumber,
+      address: farmer.address,
+      country: farmer.country,
+      district: farmer.district,
+      farmCode: farmer.farmCode,
+      farmerAge: farmer.farmerAge,
+      farmerFather: farmer.farmerFather,
+      farmerAssociation: farmer.farmerAssociation,
+      gender: farmer.gender,
+      landHoldingType: farmer.landHoldingType,
+      season: farmer.season,
+      tehsil: farmer.tehsil,
+      migrantStatus: farmer.migrantStatus,
+      village: farmer.village,
+      state: farmer.state,
+      crops: farmer.farmercropstables?.reduce<Record<string, string>>(
+        (acc, crop) => {
+          acc[crop.cid.cropName] = crop.cid.cropColor;
+          return acc;
+        },
+        {},
+      ),
+    }));
+    res.json({ data: formattedResp });
+  }
+});
+
+router.post("/addFarmer", async (req, res) => {
+  const data = req.body;
+  console.log(data);
+  const resp = await client.farmer.create({
+    data: {
+      farmerName: data.farmerName,
+      farmerFather: data.farmerFather,
+      aadharNumber: data.aadharNumber,
+      address: data.address,
+      country: data.country,
+      district: data.district,
+      farmCode: parseInt(data.farmCode),
+      farmerAge: parseInt(data.farmerAge),
+      farmerPic: data.farmerImage,
+      gender: data.gender,
+      landHoldingType: data.landHoldingType,
+      migrantStatus: data.migrantStatus,
+      phone: data.phone,
+      season: data.season,
+      tehsil: data.tehsil,
+      state: data.state,
+      farmerAssociation: data.farmerAssociation,
+      village: data.village,
+      agentId: 1,
+    },
+  });
+  if (resp) {
+    res.status(200).json({ message: "Success" });
+  }
+});
+
+router.put("/updateFarmer", async (req, res) => {
+  const data = req.body;
+  console.log(data);
+  const resp = await client.farmer.update({
+    where: {
+      farmerId: parseInt(data.farmerId),
+    },
+    data: {
+      farmerName: data.farmerName,
+      farmerFather: data.farmerFather,
+      aadharNumber: data.aadharNumber,
+      address: data.address,
+      country: data.country,
+      district: data.district,
+      farmCode: parseInt(data.farmCode),
+      farmerAge: parseInt(data.farmerAge),
+      farmerPic: data.farmerImage,
+      gender: data.gender,
+      landHoldingType: data.landHoldingType,
+      migrantStatus: data.migrantStatus,
+      phone: data.phone,
+      season: data.season,
+      tehsil: data.tehsil,
+      state: data.state,
+      farmerAssociation: data.farmerAssociation,
+      village: data.village,
+      agentId: 1,
+    },
+  });
+  if (resp) {
+    res.status(200).json({ message: "Success" });
+  }
+});
+
+router.delete("/deleteFarmer/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const resp = await client.farmer.delete({
+    where: {
+      farmerId: id,
+    },
+  });
+  if (resp) {
+    res.status(200).json({ message: "Success" });
   }
 });
 
@@ -92,6 +303,7 @@ router.get("/getCrops", async (req, res) => {
       cropId: true,
       cropName: true,
       cropImage: true,
+      cropColor: true,
       _count: {
         select: {
           farmercropstables: true,
@@ -103,6 +315,7 @@ router.get("/getCrops", async (req, res) => {
   if (resp) {
     const formattedResp: CropGridType[] = resp.map((crop) => ({
       cropId: crop.cropId,
+      cropColor: crop.cropColor,
       cropImage: crop.cropImage,
       cropName: crop.cropName,
       stats: {
@@ -125,6 +338,7 @@ router.get("/getCrops/:id", async (req, res) => {
       cropName: true,
       cropDesc: true,
       cropImage: true,
+      cropColor: true,
       _count: {
         select: { farmercropstables: true, cropplottables: true },
       },
@@ -181,6 +395,7 @@ router.get("/getCrops/:id", async (req, res) => {
   if (resp) {
     const formattedResp: IndivitualCrop = {
       cropName: resp.cropName,
+      cropColor: resp.cropColor,
       cropId: resp.cropId,
       cropDesc: resp.cropDesc,
       cropImage: resp.cropImage,
@@ -230,18 +445,7 @@ router.post("/addCrop", async (req, res) => {
       cropName: data.cropName,
       cropImage: data.cropImage,
       cropDesc: "",
-    },
-  });
-  if (resp) {
-    res.status(200).json({ message: "Success" });
-  }
-});
-
-router.delete("/deleteFarmer/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  const resp = await client.farmer.delete({
-    where: {
-      farmerId: id,
+      cropColor: data.cropColor,
     },
   });
   if (resp) {
@@ -269,8 +473,9 @@ router.put("/editCrop", async (req, res) => {
       cropId: data.cropId,
     },
     data: {
-      cropName: data.cropActivity.name,
-      cropImage: data.cropActivity.image,
+      cropName: data.cropActivity.cropName,
+      cropImage: data.cropActivity.cropPic,
+      cropColor: data.cropActivity.cropColor,
     },
   });
   if (resp) {
@@ -489,32 +694,47 @@ router.get("/getPlotDetails/:id", async (req, res) => {
   }
 });
 
-
-router.post("/addFarmer",async(req,res)=>{
-  const data=req.body
-  console.log(data)
-  const resp=await client.farmer.create({
-    data:{
-      farmerName:data.farmerName,
-      farmerFather:data.farmerFather,
-      aadharNumber:data.aadharNumber,
-      address:data.address,
-      country:data.country,
-      district:data.district,
-      farmCode:parseInt(data.farmCode),
-      farmerAge:parseInt(data.farmerAge),
-      farmerPic:data.farmerImage,
-      gender:data.gender,
-      landHoldingType:data.landHoldingType,
-      migrantStatus:data.migrantStatus,
-      phone:data.phone,
-      season:data.season,
-      tehsil:data.tehsil,
-      village:data.village,
-      agentId:1
-    }
-  })
-  if(resp){
-     res.status(200).json({ message: "Success" });
+router.get("/getPlotDetailsByFarmer/:id", async (req, res) => {
+  const id = req.params.id;
+  const response = await client.plot.findMany({
+    where: {
+      farmerId: parseInt(id),
+    },
+    select: {
+      plotId: true,
+      farmerId: true,
+      address: true,
+      location: true,
+      plotCords: true,
+      plotImage: true,
+      cropplottables: { select: { cid: { select: { cropName: true } } } },
+      fid: {
+        select: {
+          farmerName: true,
+          farmerPic: true,
+          agentId: true,
+        },
+      },
+      _count: {
+        select: {
+          cropplottables: true,
+        },
+      },
+    },
+  });
+  if (response) {
+    const formattedResp: selectedPlot[] = response.map((crop) => ({
+      agentId: crop.fid.agentId,
+      crop: crop.cropplottables[0]?.cid.cropName || "unassigned",
+      farmerId: crop.farmerId,
+      farmerPic: crop.fid.farmerPic,
+      farmerName: crop.fid.farmerName,
+      location: crop.location,
+      plot: crop.plotCords as LatLngTuple[],
+      plotId: crop.plotId,
+      plotImage: crop.plotImage,
+      noOfPlots: crop._count.cropplottables,
+    }));
+    res.json({ data: formattedResp });
   }
-})
+});

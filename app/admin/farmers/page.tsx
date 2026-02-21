@@ -32,8 +32,6 @@ interface newFarmerType {
   };
 }
 
-
-
 export default function FarmerDetails() {
   const [searchValue, setSearchValue] = useState("");
   const [filters, setFilters] = useState<filterType[]>([
@@ -54,7 +52,7 @@ export default function FarmerDetails() {
     FullFarmerDetails[] | null
   >(null);
 
-    const newType: newFarmerType = {
+  const newType: newFarmerType = {
     heading: "Add New Farmer",
     inputs: {
       farmerName: "text",
@@ -71,7 +69,7 @@ export default function FarmerDetails() {
     setFarmerDetails(res.data.data);
     console.log(res.data.data);
   };
-    const inputs = Object.keys(newType?.inputs || {});
+  const inputs = Object.keys(newType?.inputs || {});
 
   type formDataType = {
     [K in (typeof inputs)[number]]: string;
@@ -88,13 +86,13 @@ export default function FarmerDetails() {
             setFilters={setFilters}
             searchBarPlaceHolder={"Search Farmers (ID or Name)"}
           />
-          <Grid<FullFarmerDetails,newFarmerType,formDataType>
-            newData={"Add New Farmer"}
+          <Grid<FullFarmerDetails, newFarmerType, formDataType>
+            newData={"Farmer"}
             searchValue={searchValue}
             filters={filters}
             data={farmerDetails}
             Card={FarmersCard}
-            searchColoumn="name"
+            searchColoumn="farmerName"
             searchColoumn2="farmerId"
             onDelete={async (item) => {
               try {
@@ -109,21 +107,20 @@ export default function FarmerDetails() {
                 return 404;
               }
             }}
-            
             refreshData={fetchData}
             inputValues={newType}
-           onAdd={async (item:formDataType) => {
-          try {
-            await axios.post(
-              process.env.NEXT_PUBLIC_BACKEND_URL + "/addFarmer",
-              item,
-            );
-            return 200;
-          } catch (err) {
-            console.error(err);
-            return 404;
-          }
-        }}
+            onAdd={async (item: formDataType) => {
+              try {
+                await axios.post(
+                  process.env.NEXT_PUBLIC_BACKEND_URL + "/addFarmer",
+                  item,
+                );
+                return 200;
+              } catch (err) {
+                console.error(err);
+                return 404;
+              }
+            }}
           />
         </>
       )}

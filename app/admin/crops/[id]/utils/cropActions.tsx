@@ -91,7 +91,7 @@ const deleteSubActivityColoumn = async (id: number) => {
   }
 };
 
-export type FormActivityType = 
+export type FormActivityType =
   | "Update Crop Details"
   | "Add new Activity"
   | "Add new sub Activity"
@@ -99,36 +99,42 @@ export type FormActivityType =
   | "Update Activity"
   | "Update Sub-Activity"
   | "Update Sub-Activity-Coloumn";
-  interface FormInput {
+export interface FormInput {
   sub: string;
   name: string;
-  type: "text" | "number" | "dropDown" | "url";
+  icons?: React.ReactNode;
+  type: "text" | "number" | "dropDown" | "url" | "color";
   types?: string[];
   placeholder: string;
 }
 
-
-interface ActivityConfig {
+export interface ActivityConfig {
   heading: string;
   inputs: FormInput[];
-  func: (id: number, formData: any) => Promise<"ok" | undefined>;
+  func?: (id: number, formData: any) => Promise<"ok" | undefined>;
 }
-export const cropForms:Record<FormActivityType, ActivityConfig> = {
+export const cropForms: Record<FormActivityType, ActivityConfig> = {
   "Update Crop Details": {
     heading: "Edit Crop Details",
     inputs: [
       {
         sub: "Crop Name",
-        name: "name",
+        name: "cropName",
         type: "text",
         placeholder: "Enter Crop Name",
       },
       {
         sub: "Crop Image",
-        
-        name: "image",
+
+        name: "cropPic",
         type: "url",
         placeholder: "Enter Crop Image",
+      },
+      {
+        sub: "Crop Color",
+        name: "cropColor",
+        type: "color",
+        placeholder: "Enter Crop Color",
       },
     ],
     func: async (id: number, formData: any) => await editCrop(id, formData),
@@ -139,7 +145,7 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
     inputs: [
       {
         sub: "Record progress or updates for this specific stage for",
-        
+
         name: "name",
         type: "text",
         placeholder: "Describe The Activity",
@@ -147,7 +153,7 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
       {
         sub: "Record duration of ",
         name: "duration",
-        
+
         type: "number",
         placeholder: "Enter The Number Of Days",
       },
@@ -159,7 +165,6 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
     heading: "Add Sub Activity",
     inputs: [
       {
-        
         sub: "Record new Sub Activities for",
         name: "name",
         type: "text",
@@ -174,7 +179,7 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
     inputs: [
       {
         sub: "Record new Sub Activities Coloumns for",
-        
+
         name: "name",
         type: "text",
         placeholder: "Describe The Sub-Activity Coloumn",
@@ -182,9 +187,9 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
       {
         sub: "Enter Data Type",
         name: "type",
-        
+
         type: "dropDown",
-        types:["String", "Number", "Boolean", "Date"],
+        types: ["String", "Number", "Boolean", "Date"],
         placeholder: "Enter Type",
       },
     ],
@@ -197,7 +202,7 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
     inputs: [
       {
         sub: "Record progress or updates for this specific stage for",
-        
+
         name: "name",
         type: "text",
         placeholder: "Describe The Activity",
@@ -206,7 +211,7 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
         sub: "Record duration of ",
         name: "duration",
         type: "number",
-        
+
         placeholder: "Enter The Number Of Days",
       },
     ],
@@ -219,7 +224,7 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
       {
         sub: "Record new Sub Activities for",
         name: "name",
-        
+
         type: "text",
         placeholder: "Describe The Sub-Activity",
       },
@@ -240,7 +245,7 @@ export const cropForms:Record<FormActivityType, ActivityConfig> = {
         sub: "Enter Data Type",
         name: "type",
         type: "dropDown",
-        types:["String", "Number", "Boolean", "Date"],
+        types: ["String", "Number", "Boolean", "Date"],
         placeholder: "Enter Type",
       },
     ],

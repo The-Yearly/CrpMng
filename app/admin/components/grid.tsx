@@ -1,11 +1,11 @@
 "use client";
 
 import { filterType } from "../utils/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2, X, Plus } from "lucide-react";
 import { Form } from "./Form";
-import { newCreationForms ,newCreationType} from "../utils/newCreation";
+import { newCreationForms, newCreationType } from "../utils/newCreation";
 export const Grid = <
   T extends { [key: string]: any },
   A extends { [key: string]: any },
@@ -29,9 +29,9 @@ export const Grid = <
   Card: React.ComponentType<{ data: T; onDeleteClick?: () => void }>;
   searchColoumn: keyof T;
   inputValues?: A;
-  newData:string,
+  newData: string;
   searchColoumn2: keyof T;
-  onAdd?: (item:C) => Promise<number>;
+  onAdd?: (item: C) => Promise<number>;
   onDelete?: (item: T) => Promise<number>;
   refreshData?: () => void;
 }) => {
@@ -40,7 +40,7 @@ export const Grid = <
   const inputs = Object.keys(inputValues?.inputs || {});
   const initialState = Object.fromEntries(inputs.map((key) => [key, ""])) as C;
   const [formData, setFormData] = useState<C>(initialState);
-
+  useEffect(() => console.log(formData, "Pranayam"), []);
   const filteredData = data.filter((item) => {
     const search = searchValue.toLowerCase().trim();
     const searchMatch =
@@ -70,9 +70,8 @@ export const Grid = <
       setShowOverLay(false);
       refreshData?.();
       setSelectedItem(null);
-    } 
+    }
   };
-
 
   if (filteredData.length === 0) {
     return <div className="text-center py-10 text-gray-500">No data found</div>;
@@ -169,13 +168,23 @@ export const Grid = <
             </div>
           ) : (
             <div>
-              {inputValues &&  refreshData&& onAdd&&(
+              {inputValues && refreshData && onAdd && (
                 <div className="fixed w-full h-screen top-0 z-100 flex items-center justify-center">
-                 <div className="fixed inset-0 top-0 z-0 bg-black/60" onClick={()=>{setShowOverLay(!showOverLay)
-                  setFormData(initialState)}
-                 }/>
-                 <Form<C> activity={newCreationForms[newData as newCreationType]}  formData={formData} onAdd={onAdd} refreshData={refreshData} setFormData={setFormData} setShowOverLay={setShowOverLay} />
-                 
+                  <div
+                    className="fixed inset-0 top-0 z-0 bg-black/60"
+                    onClick={() => {
+                      setShowOverLay(!showOverLay);
+                      setFormData(initialState);
+                    }}
+                  />
+                  <Form<C>
+                    activity={newCreationForms[newData as newCreationType]}
+                    formData={formData}
+                    onAdd={onAdd}
+                    refreshData={refreshData}
+                    setFormData={setFormData}
+                    setShowOverLay={setShowOverLay}
+                  />
                 </div>
               )}
             </div>

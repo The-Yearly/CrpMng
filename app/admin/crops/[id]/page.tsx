@@ -13,7 +13,6 @@ export default function CropPage() {
   const params = useParams();
   const refreshData = () => {
     setRefresh(!refresh);
-    console.log("HIu")
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -31,9 +30,9 @@ export default function CropPage() {
         const formattedPlots: selectedPlot[] = crop.plots.map((plot) => ({
           agentId: plot.pid.fid.agentId,
           crop: crop.cropName,
-          name: plot.pid.fid.farmerName,
+          farmerName: plot.pid.fid.farmerName,
           farmerId: plot.pid.fid.farmerId,
-          farmerImage: plot.pid.fid.farmerPic,
+          farmerPic: plot.pid.fid.farmerPic,
           location: plot.pid.location,
           noOfPlots: crop.stats.totalPlots,
           plot: plot.pid.plotCords as LatLngTuple[],
