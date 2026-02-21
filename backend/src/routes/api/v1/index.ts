@@ -162,11 +162,11 @@ router.get("/getCrops/:id", async (req, res) => {
                 select: {
                   substagedataid: true,
                   substagecoloumn: true,
-                  substagecoloumnvalue:true
+                  substagecoloumnvalue: true,
                 },
-                orderBy:{
-                  substagedataid:"asc"
-                }
+                orderBy: {
+                  substagedataid: "asc",
+                },
               },
             },
             orderBy: { substagenumber: "asc" },
@@ -213,7 +213,7 @@ router.get("/getCrops/:id", async (req, res) => {
           substagescoloumns: substages.cropsubstagesvalues.map((data) => ({
             substagedataid: data.substagedataid,
             substagecolomn: data.substagecoloumn,
-            substagecoloumnvalue:data.substagecoloumnvalue
+            substagecoloumnvalue: data.substagecoloumnvalue,
           })),
         })),
       })),
@@ -222,62 +222,61 @@ router.get("/getCrops/:id", async (req, res) => {
   }
 });
 
-router.post("/addCrop",async(req,res)=>{
-  const data=req.body
-  const resp=await client.crop.create({
-    data:{
-      cropName:data.name,
-      cropImage:data.image,
-      cropDesc:""
-    }
-  })
+router.post("/addCrop", async (req, res) => {
+  const data = req.body;
+  console.log(data);
+  const resp = await client.crop.create({
+    data: {
+      cropName: data.cropName,
+      cropImage: data.cropImage,
+      cropDesc: "",
+    },
+  });
   if (resp) {
     res.status(200).json({ message: "Success" });
   }
-})
+});
 
-
-router.delete("/deleteFarmer/:id",async(req,res)=>{
-  const id=parseInt(req.params.id)
-  const resp=await client.farmer.delete({
-    where:{
-      farmerId:id
-    }
-  })
+router.delete("/deleteFarmer/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const resp = await client.farmer.delete({
+    where: {
+      farmerId: id,
+    },
+  });
   if (resp) {
     res.status(200).json({ message: "Success" });
   }
-})
+});
 
-router.delete("/deleteCrop/:id",async(req,res)=>{
-  const id=parseInt(req.params.id)
-  const resp=await client.crop.delete({
-    where:{
-      cropId:id
-    }
-  })
+router.delete("/deleteCrop/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const resp = await client.crop.delete({
+    where: {
+      cropId: id,
+    },
+  });
   if (resp) {
     res.status(200).json({ message: "Success" });
   }
-})
-
+});
 
 router.put("/editCrop", async (req, res) => {
   const data = req.body;
   console.log(data);
   const resp = await client.crop.update({
-    where:{
-      cropId:data.cropId
+    where: {
+      cropId: data.cropId,
     },
     data: {
       cropName: data.cropActivity.name,
-      cropImage:data.cropActivity.image
+      cropImage: data.cropActivity.image,
     },
   });
-    if (resp) {
+  if (resp) {
     res.status(200).json({ message: "Success" });
   }
-})
+});
 
 router.post("/newCropActivity", async (req, res) => {
   const data = req.body;
@@ -286,7 +285,7 @@ router.post("/newCropActivity", async (req, res) => {
     data: {
       cropId: data.cropId,
       stagename: data.cropActivity.name,
-      duration:parseInt(data.cropActivity.duration)
+      duration: parseInt(data.cropActivity.duration),
     },
   });
   console.log(resp);
@@ -299,12 +298,12 @@ router.put("/editCropActivity", async (req, res) => {
   const data = req.body;
   console.log(data);
   const resp = await client.cropstages.update({
-    where:{
-      sid:data.cropActivity.id
+    where: {
+      sid: data.cropActivity.id,
     },
     data: {
       stagename: data.cropActivity.name,
-      duration:parseInt(data.cropActivity.duration)
+      duration: parseInt(data.cropActivity.duration),
     },
   });
   console.log(resp);
@@ -341,13 +340,12 @@ router.post("/addSubActivity", async (req, res) => {
   }
 });
 
-
 router.put("/editSubActivity", async (req, res) => {
   const data = req.body;
   console.log(data);
   const resp = await client.cropsubstages.update({
-    where:{
-      substageid:data.cropActivity.id
+    where: {
+      substageid: data.cropActivity.id,
     },
     data: {
       substagename: data.cropActivity.name,
@@ -378,7 +376,7 @@ router.post("/addSubActivityColoumn", async (req, res) => {
     data: {
       substageid: data.sid,
       substagecoloumn: data.subactivity.name,
-      substagecoloumnvalue:data.subactivity.type,
+      substagecoloumnvalue: data.subactivity.type,
     },
   });
   console.log(resp);
@@ -386,18 +384,17 @@ router.post("/addSubActivityColoumn", async (req, res) => {
     res.status(200).json({ message: "Success" });
   }
 });
-
 
 router.put("/editSubActivityColoumn", async (req, res) => {
   const data = req.body;
   console.log(data);
   const resp = await client.cropsubstagesvalue.update({
-    where:{
-      substagedataid:data.subactivity.id
+    where: {
+      substagedataid: data.subactivity.id,
     },
     data: {
       substagecoloumn: data.subactivity.name,
-      substagecoloumnvalue:data.subactivity.type,
+      substagecoloumnvalue: data.subactivity.type,
     },
   });
   console.log(resp);
@@ -406,12 +403,11 @@ router.put("/editSubActivityColoumn", async (req, res) => {
   }
 });
 
-
 router.delete("/deleteSubActivityColoumn/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const resp = await client.cropsubstagesvalue.delete({
     where: {
-      substagedataid:id
+      substagedataid: id,
     },
   });
 
@@ -419,8 +415,6 @@ router.delete("/deleteSubActivityColoumn/:id", async (req, res) => {
     res.status(200).json({ message: "Success" });
   }
 });
-
-
 
 router.get("/getPlotDetails/:id", async (req, res) => {
   const id = req.params.id;
@@ -457,7 +451,7 @@ router.get("/getPlotDetails/:id", async (req, res) => {
                             select: {
                               name: true,
                               data: true,
-                              substagevalue:true,
+                              substagevalue: true,
                             },
                           },
                         },
@@ -494,3 +488,33 @@ router.get("/getPlotDetails/:id", async (req, res) => {
     res.json({ data: formattedResp });
   }
 });
+
+
+router.post("/addFarmer",async(req,res)=>{
+  const data=req.body
+  console.log(data)
+  const resp=await client.farmer.create({
+    data:{
+      farmerName:data.farmerName,
+      farmerFather:data.farmerFather,
+      aadharNumber:data.aadharNumber,
+      address:data.address,
+      country:data.country,
+      district:data.district,
+      farmCode:parseInt(data.farmCode),
+      farmerAge:parseInt(data.farmerAge),
+      farmerPic:data.farmerImage,
+      gender:data.gender,
+      landHoldingType:data.landHoldingType,
+      migrantStatus:data.migrantStatus,
+      phone:data.phone,
+      season:data.season,
+      tehsil:data.tehsil,
+      village:data.village,
+      agentId:1
+    }
+  })
+  if(resp){
+     res.status(200).json({ message: "Success" });
+  }
+})

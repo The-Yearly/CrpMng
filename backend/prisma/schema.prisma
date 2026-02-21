@@ -15,20 +15,46 @@ model agent {
   agentPic   String
   farmers    farmer[]
 }
-
-model farmer {
-  farmerId          Int                @id @default(autoincrement())
-  farmerName        String
-  farmerFather      String
-  farmerPic         String
-  address           String
-  phone             String
-  agentId           Int
-  aaid              agent              @relation(fields: [agentId], references: [agentId])
-  plots             plot[]
-  farmercropstables farmercropstable[]
+enum Gender {
+  Male
+  Female
 }
 
+enum MigrantStatus {
+  Migrant
+  Local
+}
+
+enum LandHoldingType {
+  Own
+  Lease
+}
+
+model farmer {
+  farmerId            Int               @id @default(autoincrement())
+  farmerName          String            @default("")
+  farmerFather        String @default("")
+  farmerPic           String @default("")
+  address             String @default("")
+  country             String    @default("")
+  district            String    @default("")
+  tehsil              String     @default("")
+  village             String @default("")
+  season              String  @default("")
+  phone               String     @default("")
+  farmCode            Int      @default(0)
+  aadharNumber        String   @default("")
+  farmerAge           Int  @default(0)
+  migrantStatus       MigrantStatus @default(Local)
+  landHoldingType     LandHoldingType @default(Own)
+  farmerAssociation   String   @default("")
+
+  gender              Gender @default(Male)
+  agentId             Int
+  aaid                agent             @relation(fields: [agentId], references: [agentId])
+  plots               plot[]
+  farmercropstables   farmercropstable[]
+}
 model plot {
   plotId             Int                 @id @default(autoincrement())
   farmerId           Int

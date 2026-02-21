@@ -13,6 +13,7 @@ export default function CropPage() {
   const params = useParams();
   const refreshData = () => {
     setRefresh(!refresh);
+    console.log("HIu")
   };
   useEffect(() => {
     const fetchData = async () => {

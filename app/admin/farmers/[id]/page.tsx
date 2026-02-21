@@ -229,7 +229,7 @@ export default function FarmerDetailsPage({
               <ListRow
                 icon={<Phone size={20} />}
                 label="Contact"
-                value={farmer.phone}
+                value={farmer?.phone||1}
               />
               <ListRow
                 icon={<Maximize size={20} />}

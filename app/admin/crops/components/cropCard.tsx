@@ -5,20 +5,24 @@ import { Users, Map } from "lucide-react";
 import Link from "next/link";
 import { CropGridType } from "../../utils/types";
 import { Trash2 } from "lucide-react";
-export const CropCard = ({ data ,  onDeleteClick,}: { data: CropGridType,  onDeleteClick?: () => void; }) => {
+export const CropCard = ({
+  data,
+  onDeleteClick,
+}: {
+  data: CropGridType;
+  onDeleteClick?: () => void;
+}) => {
   return (
     <div className="relative z-100 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300">
-
       <Link href={"crops/" + data.cropId}>
         <div className="relative z-10 h-40 w-full">
-         
           <Image
             src={data.cropImage}
             alt={data.cropName}
             fill
             className="object-cover rounded-t-xl"
           />
-               </div>
+        </div>
 
         <div className="p-5 space-y-3">
           <div>
@@ -50,14 +54,14 @@ export const CropCard = ({ data ,  onDeleteClick,}: { data: CropGridType,  onDel
         </div>
       </Link>
       <button
-  onClick={(e) => {
-    e.preventDefault();
-    onDeleteClick?.();
-  }}
-  className="absolute z-100 top-4 right-2 text-red-500  hover:text-red-700 hover:bg-gray-300/60 transition-colors p-3 rounded-full bg-white/30"
->
-  <Trash2 />
-</button>
+        onClick={(e) => {
+          e.preventDefault();
+          onDeleteClick?.();
+        }}
+        className="absolute z-100 top-4 right-2 text-red-500  hover:text-red-700 hover:bg-gray-300/60 transition-colors p-3 rounded-full bg-white/30"
+      >
+        <Trash2 />
+      </button>
     </div>
   );
 };

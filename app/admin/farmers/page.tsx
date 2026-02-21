@@ -23,6 +23,17 @@ const locations = [
   "Palakkad",
   "Kannur",
 ];
+
+interface newFarmerType {
+  heading: string;
+  inputs: {
+    farmerName: string;
+    farmerImage: string;
+  };
+}
+
+
+
 export default function FarmerDetails() {
   const [searchValue, setSearchValue] = useState("");
   const [filters, setFilters] = useState<filterType[]>([
@@ -43,17 +54,28 @@ export default function FarmerDetails() {
     FullFarmerDetails[] | null
   >(null);
 
+    const newType: newFarmerType = {
+    heading: "Add New Farmer",
+    inputs: {
+      farmerName: "text",
+      farmerImage: "url",
+    },
+  };
   useEffect(() => {
-    
     fetchData();
   }, []);
   const fetchData = async () => {
-      const res = await axios.get(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/getFarmerDets",
-      );
-      setFarmerDetails(res.data.data);
-      console.log(res.data.data);
-    };
+    const res = await axios.get(
+      process.env.NEXT_PUBLIC_BACKEND_URL + "/getFarmerDets",
+    );
+    setFarmerDetails(res.data.data);
+    console.log(res.data.data);
+  };
+    const inputs = Object.keys(newType?.inputs || {});
+
+  type formDataType = {
+    [K in (typeof inputs)[number]]: string;
+  };
   return (
     <>
       {farmerDetails && (
@@ -66,29 +88,43 @@ export default function FarmerDetails() {
             setFilters={setFilters}
             searchBarPlaceHolder={"Search Farmers (ID or Name)"}
           />
-        <Grid<FullFarmerDetails>
-          searchValue={searchValue}
-          filters={filters}
-          data={farmerDetails}
-          Card={FarmersCard}
-          searchColoumn="name"
-          searchColoumn2="farmerId"
-          onDelete={async (item) => {
-    try {
-      const res = await axios.delete(
-        process.env.NEXT_PUBLIC_BACKEND_URL +
-          `/deleteCrop/${item.farmerId}`
-      );
+          <Grid<FullFarmerDetails,newFarmerType,formDataType>
+            newData={"Add New Farmer"}
+            searchValue={searchValue}
+            filters={filters}
+            data={farmerDetails}
+            Card={FarmersCard}
+            searchColoumn="name"
+            searchColoumn2="farmerId"
+            onDelete={async (item) => {
+              try {
+                const res = await axios.delete(
+                  process.env.NEXT_PUBLIC_BACKEND_URL +
+                    `/deleteFarmer/${item.farmerId}`,
+                );
 
-      return res.status;
-    } catch (err) {
-      console.error(err);
-      return 404;
-    }
-  }}
-          refreshData={fetchData}
-        />
-
+                return res.status;
+              } catch (err) {
+                console.error(err);
+                return 404;
+              }
+            }}
+            
+            refreshData={fetchData}
+            inputValues={newType}
+           onAdd={async (item:formDataType) => {
+          try {
+            await axios.post(
+              process.env.NEXT_PUBLIC_BACKEND_URL + "/addFarmer",
+              item,
+            );
+            return 200;
+          } catch (err) {
+            console.error(err);
+            return 404;
+          }
+        }}
+          />
         </>
       )}
     </>

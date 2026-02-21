@@ -6,37 +6,42 @@ import Hero from "../components/Dashhero";
 import { filterType } from "../utils/types";
 import axios from "axios";
 import { CropGridType } from "../utils/types";
-import { Plus, X } from "lucide-react";
+
+interface newCropType {
+  heading: string;
+  inputs: {
+    cropName: string;
+    cropImage: string;
+  };
+}
 
 export default function Crops() {
   const [searchValue, setSearchValue] = useState("");
   const [filters, setFilters] = useState<filterType[]>([]);
   const [data, setData] = useState<CropGridType[]>([]);
-  const [overlay, showOverLay] = useState(false);
+  const newType: newCropType = {
+    heading: "Add New Crop",
+    inputs: {
+      cropName: "text",
+      cropImage: "url",
+    },
+  };
+  const inputs = Object.keys(newType?.inputs || {});
 
-
+    type formDataType = {
+      [K in (typeof inputs)[number]]: string;
+    };
   useEffect(() => {
     fetchCrops();
   }, []);
 
   const fetchCrops = async () => {
     const res = await axios.get(
-      process.env.NEXT_PUBLIC_BACKEND_URL + "/getCrops"
+      process.env.NEXT_PUBLIC_BACKEND_URL + "/getCrops",
     );
+    console.log("sd")
     setData(res.data.data);
   };
-
-  // const handleAddCrop = async () => {
-  //   try {
-  //     await axios.post(
-  //       process.env.NEXT_PUBLIC_BACKEND_URL + "/addCrop",formData
-  //     );
-  //     showOverLay(false);
-  //     fetchCrops();
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
 
   return (
     <>
@@ -48,39 +53,42 @@ export default function Crops() {
         setSearchValue={setSearchValue}
         searchBarPlaceHolder="Search Crops (ID or Name)"
       />
-<Grid<CropGridType>
-  searchValue={searchValue}
-  searchColoumn="cropName"
-  searchColoumn2="cropId"
-  filters={filters}
-  data={data}
-  onDelete={async (item) => {
-      try {
-        const res = await axios.delete(
-          process.env.NEXT_PUBLIC_BACKEND_URL +
-            `/deleteCrop/${item.cropId}`
-        );
+      <Grid<CropGridType, newCropType, formDataType>
+        newData={"Add New Crop"}
+        searchValue={searchValue}
+        searchColoumn="cropName"
+        searchColoumn2="cropId"
+        filters={filters}
+        data={data}
+        onDelete={async (item) => {
+          try {
+            const res = await axios.delete(
+              process.env.NEXT_PUBLIC_BACKEND_URL +
+                `/deleteCrop/${item.cropId}`,
+            );
 
-        return res.status;
-      } catch (err) {
-        console.error(err);
-        return 404;
-      }
-    }}
-  Card={CropCard}
-  refreshData={fetchCrops}
-  onAddClick={async (item) => {
-    try {
-      await axios.post(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/addCrop",item
-      );
-      showOverLay(false);
-      fetchCrops();
-    } catch (err) {
-      console.error(err);
-    }}}
-/>
-      
+            return res.status;
+          } catch (err) {
+            console.error(err);
+            return 404;
+          }
+        }}
+        Card={CropCard}
+        refreshData={fetchCrops}
+        inputValues={newType}
+        onAdd={async (item:formDataType) => {
+          try {
+            await axios.post(
+              process.env.NEXT_PUBLIC_BACKEND_URL + "/addCrop",
+              item,
+            );
+            return 200;
+          } catch (err) {
+            console.error(err);
+            return 404;
+          }
+        }}
+      />
     </>
   );
 }

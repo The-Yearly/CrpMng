@@ -1,9 +1,15 @@
 "use client";
 import Image from "next/image";
 import { FullFarmerDetails } from "../../utils/types";
-import { MapPin, Phone, Sprout, User,Trash2 } from "lucide-react";
+import { MapPin, Phone, Sprout, User, Trash2 } from "lucide-react";
 import Link from "next/link";
-export const FarmersCard = ({ data,onDeleteClick }: { data: FullFarmerDetails ,onDeleteClick?: () => void;}) => {
+export const FarmersCard = ({
+  data,
+  onDeleteClick,
+}: {
+  data: FullFarmerDetails;
+  onDeleteClick?: () => void;
+}) => {
   return (
     <div className="relative bg-white rounded-xl shadow-sm hover:shadow-lg transition duration-1000">
       <Link href={"farmers/" + data.farmerId}>
@@ -59,15 +65,15 @@ export const FarmersCard = ({ data,onDeleteClick }: { data: FullFarmerDetails ,o
           </div>
         </div>
       </Link>
-            <button
-  onClick={(e) => {
-    e.preventDefault();
-    onDeleteClick?.();
-  }}
-  className="absolute z-100 top-4 right-2 text-red-500  hover:text-red-700 hover:bg-gray-300/60 transition-colors p-3 rounded-full bg-white/30"
->
-  <Trash2 />
-</button>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          onDeleteClick?.();
+        }}
+        className="absolute z-100 top-4 right-2 text-red-500  hover:text-red-700 hover:bg-gray-300/60 transition-colors p-3 rounded-full bg-white/30"
+      >
+        <Trash2 />
+      </button>
     </div>
   );
 };

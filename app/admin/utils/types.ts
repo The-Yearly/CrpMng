@@ -82,7 +82,7 @@ export interface Stages {
     substagescoloumns: {
       substagedataid: number;
       substagecolomn: string;
-     substagecoloumnvalue:string;
+      substagecoloumnvalue: string;
     }[];
   }[];
 }
