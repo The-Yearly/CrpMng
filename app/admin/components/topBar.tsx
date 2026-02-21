@@ -10,11 +10,6 @@ export default function TopBar() {
     { label: "Plantings", href: "/admin/plantings" },
     { label: "Farmers", href: "/admin/farmers" },
     { label: "Crops", href: "/admin/crops" },
-    { label: "Water", href: "/admin/water" },
-    { label: "Food", href: "/admin/food" },
-    { label: "Waste", href: "/admin/waste" },
-    { label: "Goods", href: "/admin/goods" },
-    { label: "Users", href: "/admin/users" },
   ];
 
   return (
@@ -28,7 +23,7 @@ export default function TopBar() {
             <Link
               key={i}
               href={item.href}
-              className={`flex items-center px-4 h-10 rounded-full transition-colors ${
+              className={`flex items-center px-4 h-14 rounded-full transition-colors ${
                 item.href === pathname
                   ? "bg-gray-900 h-full text-white"
                   : "text-gray-800 hover:bg-gray-200"
@@ -38,10 +33,13 @@ export default function TopBar() {
             </Link>
           ))}
         </div>
-        <div className="bg-white/50 shadow flex items-center h-14 px-4 space-x-2 rounded-full hover:bg-white/70 transition">
+        <Link
+          href={"settings"}
+          className={` shadow flex items-center h-14 px-4 space-x-2 rounded-full transition ${pathname === "/admin/settings" ? "bg-gray-900  text-white" : "text-gray-800 bg-white/50 hover:bg-gray-200"} `}
+        >
           <Settings className="w-5 h-5" />
           <p className="text-sm font-medium">Settings</p>
-        </div>
+        </Link>
 
         <div className="bg-white/50 shadow flex items-center justify-center h-14 w-14 rounded-full hover:bg-white/70 transition">
           <Bell className="w-5 h-5" />

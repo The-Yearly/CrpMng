@@ -4,35 +4,21 @@ import React, { useEffect, useState, use } from "react";
 import Image from "next/image";
 import axios from "axios";
 import {
-  ArrowLeft,
-  Pencil,
-  X,
-  Check,
-  User,
-  Phone,
   MapPin,
-  Hash,
-  Globe,
-  Map,
-  Landmark,
-  TreePine,
-  Home,
-  Sun,
-  ShieldCheck,
-  Users,
-  Layers,
-  IdCard,
   Calendar,
-  Wheat,
-  BadgeCheck,
+  ChevronRight,
+  Bell,
+  Maximize,
+  ClipboardCheck,
+  Zap,
+  ChevronDown,
+  ArrowLeft,
+  Phone,
 } from "lucide-react";
 import Link from "next/link";
-import { fullFarmerDetails } from "../../utils/types";
+import { FullFarmerDetails } from "../../utils/types";
 
-// ─── TYPES ─────────────────────────────────────────────────────────────────────
-type Tab = "details" | "plots";
-
-interface FieldRowProps {
+interface ListRowProps {
   icon: React.ReactNode;
   label: string;
   value?: string | number;
@@ -40,97 +26,49 @@ interface FieldRowProps {
   editNode?: React.ReactNode;
 }
 
-// ─── FIELD ROW ─────────────────────────────────────────────────────────────────
-function FieldRow({ icon, label, value, isEditing, editNode }: FieldRowProps) {
-  return (
-    <div className="flex flex-col gap-1.5 py-4 border-b border-dashed border-stone-100 last:border-0">
-      <div className="flex items-center gap-2">
-        <span className="text-green-600 opacity-70">{icon}</span>
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-400 leading-none">
-          {label}
-        </p>
-      </div>
-      {isEditing && editNode ? (
-        editNode
-      ) : (
-        <p className="text-sm font-semibold text-stone-800 pl-6">
-          {value ?? (
-            <span className="text-stone-300 font-normal italic text-xs">
-              Not provided
-            </span>
-          )}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function EditInput({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="ml-6 w-[calc(100%-1.5rem)] text-sm font-semibold text-stone-800 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-green-300 transition-all"
-    />
-  );
-}
-
-function EditSelect({
-  value,
-  onChange,
-  options,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="ml-6 w-[calc(100%-1.5rem)] text-sm font-semibold text-stone-800 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-green-300 transition-all"
-    >
-      {options.map((o) => (
-        <option key={o}>{o}</option>
-      ))}
-    </select>
-  );
-}
-
-// ─── STAT CHIP ──────────────────────────────────────────────────────────────────
-function StatChip({
+function ListRow({
+  icon,
   label,
   value,
-  icon,
-}: {
-  label: string;
-  value: string | number;
-  icon: React.ReactNode;
-}) {
+  subValue,
+  badge,
+  noBorder,
+}: ListRowProps) {
   return (
-    <div className="flex items-center gap-3 bg-stone-50 rounded-2xl px-4 py-3 border border-stone-100">
-      <div className="w-8 h-8 rounded-xl bg-green-600/10 flex items-center justify-center text-green-700 flex-shrink-0">
-        {icon}
+    <div
+      className={`flex items-center justify-between py-5 px-4 rounded-2xl group cursor-pointer hover:bg-slate-50 transition-all ${noBorder ? "" : "border-b border-slate-50"}`}
+    >
+      <div className="flex items-center gap-5">
+        <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:text-black group-hover:bg-white group-hover:shadow-md border border-transparent group-hover:border-slate-100 transition-all">
+          {icon}
+        </div>
+        <div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">
+            {label}
+          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-md font-bold text-black">{value}</p>
+            {badge && (
+              <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                {badge}
+              </span>
+            )}
+          </div>
+          {subValue && (
+            <p className="text-xs text-slate-400 font-medium mt-1">
+              {subValue}
+            </p>
+          )}
+        </div>
       </div>
-      <div className="min-w-0">
-        <p className="text-[8px] font-black uppercase tracking-[0.18em] text-stone-400 leading-none mb-0.5">
-          {label}
-        </p>
-        <p className="text-sm font-black text-stone-800 leading-none truncate">
-          {value}
-        </p>
-      </div>
+      <ChevronRight
+        size={18}
+        className="text-slate-200 group-hover:text-black group-hover:translate-x-1 transition-all"
+      />
     </div>
   );
 }
 
-// ─── MAIN PAGE ─────────────────────────────────────────────────────────────────
 export default function FarmerDetailsPage({
   params,
 }: {
@@ -139,7 +77,8 @@ export default function FarmerDetailsPage({
   const resolvedParams = use(params);
   const farmerId = resolvedParams.id;
 
-  const [farmer, setFarmer] = useState<fullFarmerDetails | null>(null);
+  const [farmer, setFarmer] = useState<FullFarmerDetails | null>(null);
+  const [activeCrop, setActiveCrop] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("details");
   const [isEditing, setIsEditing] = useState(false);
@@ -167,12 +106,14 @@ export default function FarmerDetailsPage({
     const fetchFarmerData = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/getFarmerDets`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/getFarmerDets`,
         );
         const allFarmers = res.data.data;
+
         const selected = allFarmers.find(
-          (f: fullFarmerDetails) => String(f.farmerId) === farmerId
+          (f: FullFarmerDetails) => String(f.farmerId) === farmerId,
         );
+
         if (selected) {
           setFarmer(selected);
           setEditState((prev) => ({
@@ -211,9 +152,9 @@ export default function FarmerDetailsPage({
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#f2f4ee]">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-stone-200 border-t-green-600" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
-            Loading Profile…
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-black" />
+          <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+            Loading Profile...
           </p>
         </div>
       </div>
@@ -224,7 +165,7 @@ export default function FarmerDetailsPage({
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#f2f4ee]">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-stone-900">
+          <h1 className="text-2xl font-bold text-slate-900">
             Farmer Not Found
           </h1>
           <Link
@@ -239,13 +180,12 @@ export default function FarmerDetailsPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f4ee]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-
-        {/* ── BACK LINK ── */}
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4">
+      {/* Navigation */}
+      <div className="w-full max-w-2xl mb-6">
         <Link
           href="/admin/farmers"
-          className="inline-flex items-center gap-2 text-stone-400 hover:text-stone-800 transition-colors font-bold text-[10px] tracking-[0.2em] uppercase mb-8 group"
+          className="inline-flex items-center gap-2 text-slate-400 hover:text-black transition-colors font-bold text-xs tracking-widest uppercase"
         >
           <ArrowLeft
             size={14}
@@ -254,469 +194,126 @@ export default function FarmerDetailsPage({
           Back to Directory
         </Link>
 
-        {/* ══ TWO-COLUMN LAYOUT ══ */}
-        <div className="flex flex-col lg:flex-row gap-6 items-stretch">
-
-          {/* ══════════════════════════════════
-              LEFT COLUMN — full-height profile card
-          ══════════════════════════════════ */}
-          <div className="w-full lg:w-80 xl:w-96 flex-shrink-0 self-stretch">
-            <div className="bg-white rounded-[2rem] shadow-[0_8px_40px_-8px_rgba(0,0,0,0.12)] border border-stone-100 overflow-hidden h-full flex flex-col">
-
-              {/* Green header — taller, more dramatic */}
-              <div className="relative bg-gradient-to-br from-green-700 via-green-800 to-green-950 px-8 pt-8 pb-24 flex-shrink-0">
-                {/* Decorative rings */}
-                <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5" />
-                <div className="absolute top-8 right-6 w-20 h-20 rounded-full bg-white/5" />
-                <div className="absolute bottom-4 left-4 w-16 h-16 rounded-full bg-black/10" />
-
-                <div className="flex items-center justify-between relative z-10">
-                  <div>
-                    <p className="text-[8px] font-black uppercase tracking-[0.3em] text-green-400/80 mb-1">
-                      Farmer Profile
-                    </p>
-                    <p className="text-xs font-bold text-green-200/60">
-                      Admin View
-                    </p>
-                  </div>
-                  <span className="flex items-center gap-1.5 bg-black/25 text-green-200 text-[8px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border border-white/10">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Active
-                  </span>
-                </div>
-              </div>
-
-              {/* Avatar + info — overlaps the green header, grows to fill remaining space */}
-              <div className="flex flex-col items-center -mt-16 px-8 pb-8 flex-1">
-
-                {/* Big avatar circle */}
-                <div className="relative mb-5">
-                  <div className="w-36 h-36 rounded-full overflow-hidden border-[5px] border-white shadow-[0_12px_40px_rgba(0,0,0,0.2)] bg-stone-200 relative">
-                    <Image
-                      src={
-                        farmer.farmerImage ||
-                        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400"
-                      }
-                      alt={farmer.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-green-600 border-[3px] border-white flex items-center justify-center shadow-lg">
-                    <BadgeCheck size={16} className="text-white" fill="currentColor" />
-                  </div>
-                </div>
-
-                <h2 className="text-2xl font-black text-stone-900 text-center tracking-tight leading-tight">
-                  {farmer.name}
-                </h2>
-                <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest mt-1.5 text-center">
-                  ID #{farmer.farmerId} · Agent #{farmer.agentId}
-                </p>
-
-                <div className="w-full h-px bg-stone-100 my-6" />
-
-                {/* Stat chips */}
-                <div className="w-full flex flex-col gap-3">
-                  <StatChip
-                    label="Active Plots"
-                    value={farmer.noOfPlots}
-                    icon={<Map size={15} />}
-                  />
-                  <StatChip
-                    label="Primary Location"
-                    value={farmer.locations?.[0] ?? "—"}
-                    icon={<MapPin size={15} />}
-                  />
-                  <StatChip
-                    label="Phone"
-                    value={farmer.phone}
-                    icon={<Phone size={15} />}
-                  />
-                </div>
-
-                <div className="w-full h-px bg-stone-100 my-6" />
-
-                {/* Crops */}
-                <div className="w-full">
-                  <p className="text-[8px] font-black uppercase tracking-[0.22em] text-stone-400 mb-3">
-                    Crops
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {farmer.crops.map((c) => (
-                      <span
-                        key={c}
-                        className="flex items-center gap-1.5 bg-green-50 border border-green-100 text-green-700 text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-xl"
-                      >
-                        <Wheat size={10} />
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Spacer pushes edit button to bottom */}
-                <div className="flex-1" />
-
-                <div className="w-full h-px bg-stone-100 my-6" />
-
-                {/* Edit / Save / Cancel */}
-                {!isEditing ? (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="w-full flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-700 text-white text-[10px] font-black uppercase tracking-[0.18em] py-4 rounded-2xl transition-all active:scale-[0.97] shadow-lg"
-                  >
-                    <Pencil size={14} /> Edit Details
-                  </button>
-                ) : (
-                  <div className="w-full flex flex-col gap-3">
-                    <button
-                      onClick={handleSave}
-                      className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-[10px] font-black uppercase tracking-[0.18em] py-4 rounded-2xl transition-all active:scale-[0.97] shadow-lg"
-                    >
-                      <Check size={14} /> Save Changes
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      className="w-full flex items-center justify-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-500 text-[10px] font-black uppercase tracking-[0.18em] py-3.5 rounded-2xl transition-all"
-                    >
-                      <X size={14} /> Cancel
-                    </button>
-                  </div>
-                )}
+      {/* Main Card Container */}
+      <div className="w-full max-w-2xl bg-white rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col h-[750px]">
+        {/* 1. STICKY BRANDED HEADER */}
+        <div className="bg-black p-8 flex-shrink-0 flex justify-between items-center border-b border-white/5">
+          <div className="flex gap-6 items-center">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-zinc-800 bg-zinc-900 relative shadow-2xl">
+              <Image
+                src={
+                  farmer.farmerImage ||
+                  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200"
+                }
+                alt={farmer.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white tracking-tight">
+                {farmer.name}
+              </h2>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                  ID: {farmer.farmerId}
+                </span>
+                <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                <span className="text-amber-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                  Agent {farmer.agentId}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* ══════════════════════════════════
-              RIGHT COLUMN — tabs + content
-          ══════════════════════════════════ */}
-          <div className="flex-1 min-w-0 self-stretch">
-            <div className="bg-white rounded-[2rem] shadow-[0_8px_40px_-8px_rgba(0,0,0,0.1)] border border-stone-100 overflow-hidden h-full flex flex-col">
-
-              {/* ── TAB BAR ── */}
-              <div className="flex items-end gap-1 border-b border-stone-100 px-6 pt-4 bg-stone-50/40">
-                {(["details", "plots"] as Tab[]).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTab(t)}
-                    className={`relative flex items-center gap-2 px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] rounded-t-xl transition-all ${
-                      tab === t
-                        ? "bg-white text-stone-900 shadow-[0_-1px_8px_rgba(0,0,0,0.06)] border border-b-white border-stone-100"
-                        : "text-stone-400 hover:text-stone-600"
-                    }`}
-                  >
-                    {t === "details" ? (
-                      <User size={11} />
-                    ) : (
-                      <Layers size={11} />
-                    )}
-                    Farmer {t === "details" ? "Details" : "Plots"}
-                    {tab === t && (
-                      <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-green-500 rounded-t-full" />
-                    )}
-                  </button>
-                ))}
-
-                {isEditing && (
-                  <span className="ml-auto mb-3 text-[8px] font-black uppercase tracking-widest text-green-600 bg-green-50 border border-green-200 px-3 py-1.5 rounded-full animate-pulse">
-                    ✦ Editing Mode
-                  </span>
-                )}
+        {/* 2. SCROLLABLE CONTENT BODY */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-white">
+          <div className="p-8 pb-4">
+            {/* Field Selection */}
+            <div className="mb-8">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
+                Field Selection
+              </p>
+              <div className="relative">
+                <select
+                  value={activeCrop}
+                  onChange={(e) => setActiveCrop(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-100 p-4 pr-12 rounded-2xl text-sm font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-black/5 transition-all outline-none"
+                >
+                  {farmer.crops.map((c) => (
+                    <option key={c} value={c}>
+                      {c} CULTIVATION
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
               </div>
 
-              {/* ── DETAILS TAB ── */}
-              {tab === "details" && (
-                <div className="p-6 sm:p-8">
-                  <div className="mb-6">
-                    <p className="text-[8px] font-black uppercase tracking-[0.28em] text-green-600 mb-1">
-                      Registration Process
-                    </p>
-                    <h3 className="text-xl font-black text-stone-900">
-                      Farmer Registration Details
-                    </h3>
-                    <p className="text-xs text-stone-400 mt-1 font-medium">
-                      All information submitted during onboarding
-                    </p>
-                  </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">
+              Operational Data
+            </p>
 
-                  {/* 2-col fields grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
-                    <FieldRow
-                      icon={<User size={13} />}
-                      label="Farmer Name"
-                      value={editState.name}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.name}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, name: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<User size={13} />}
-                      label="Gender"
-                      value={editState.gender}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditSelect
-                          value={editState.gender}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, gender: v }))
-                          }
-                          options={["Male", "Female", "Other"]}
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Users size={13} />}
-                      label="Father Name"
-                      value={editState.fatherName}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.fatherName}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, fatherName: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Phone size={13} />}
-                      label="Mobile Number"
-                      value={editState.phone}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.phone}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, phone: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Hash size={13} />}
-                      label="Farmer Code"
-                      value={editState.farmerCode}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.farmerCode}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, farmerCode: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Globe size={13} />}
-                      label="Country"
-                      value={editState.country}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.country}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, country: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Map size={13} />}
-                      label="State"
-                      value={editState.state}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.state}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, state: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Landmark size={13} />}
-                      label="District"
-                      value={editState.district}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.district}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, district: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<MapPin size={13} />}
-                      label="Tehsil / Mandal"
-                      value={editState.tehsil}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.tehsil}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, tehsil: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Home size={13} />}
-                      label="Village"
-                      value={editState.village}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.village}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, village: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Sun size={13} />}
-                      label="Season"
-                      value={editState.season}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.season}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, season: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<IdCard size={13} />}
-                      label="Aadhar Number"
-                      value={editState.aadhar}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.aadhar}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, aadhar: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Calendar size={13} />}
-                      label="Farmer Age"
-                      value={`${editState.age} yrs`}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.age}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, age: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<ShieldCheck size={13} />}
-                      label="Migrant or Local"
-                      value={editState.migrantStatus}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditSelect
-                          value={editState.migrantStatus}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, migrantStatus: v }))
-                          }
-                          options={["Local", "Migrant"]}
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<TreePine size={13} />}
-                      label="Land Holding — Own / Lease"
-                      value={editState.landHolding}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.landHolding}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, landHolding: v }))
-                          }
-                        />
-                      }
-                    />
-                    <FieldRow
-                      icon={<Users size={13} />}
-                      label="Farmer Association"
-                      value={editState.association}
-                      isEditing={isEditing}
-                      editNode={
-                        <EditInput
-                          value={editState.association}
-                          onChange={(v) =>
-                            setEditState((p) => ({ ...p, association: v }))
-                          }
-                        />
-                      }
-                    />
-                  </div>
-
-                  {/* Bottom save bar — only in edit mode */}
-                  {isEditing && (
-                    <div className="mt-8 pt-6 border-t border-stone-100 flex justify-end gap-3">
-                      <button
-                        onClick={handleCancel}
-                        className="flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-600 text-xs font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all"
-                      >
-                        <X size={13} /> Discard
-                      </button>
-                      <button
-                        onClick={handleSave}
-                        className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95"
-                      >
-                        <Check size={13} /> Save Changes
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* ── PLOTS TAB ── */}
-              {tab === "plots" && (
-                <div className="flex flex-col items-center justify-center py-28 gap-4 text-center px-8">
-                  <div className="w-16 h-16 rounded-2xl bg-green-50 flex items-center justify-center border border-green-100">
-                    <Layers size={26} className="text-green-600" />
-                  </div>
-                  <h3 className="text-xl font-black text-stone-800">
-                    Farmer Plots
-                  </h3>
-                  <p className="text-sm text-stone-400 max-w-xs font-medium leading-relaxed">
-                    Plot mapping and field management for{" "}
-                    <span className="font-bold text-stone-600">
-                      {farmer.name}
-                    </span>{" "}
-                    will appear here.
-                  </p>
-                  <span className="text-[9px] font-black uppercase tracking-[0.25em] text-green-600 bg-green-50 border border-green-200 px-4 py-2 rounded-full mt-1">
-                    Coming Soon
-                  </span>
-                </div>
-              )}
+            {/* Data Rows */}
+            <div className="space-y-1">
+              <ListRow
+                icon={<MapPin size={20} />}
+                label="Primary Location"
+                value={farmer.locations[0]}
+                subValue="Main Registered Zone"
+              />
+              <ListRow
+                icon={<Phone size={20} />}
+                label="Contact"
+                value={farmer?.phone||1}
+              />
+              <ListRow
+                icon={<Maximize size={20} />}
+                label="Perimeter Mapping"
+                value={`${farmer.noOfPlots} Active Plots`}
+                subValue={`Managed land for ${activeCrop}`}
+              />
+              <ListRow
+                icon={<Calendar size={20} />}
+                label="Registration Date"
+                value="2025-08-14"
+              />
+              <ListRow
+                icon={<Bell size={20} />}
+                label="Safety Status"
+                value="No Active Alerts"
+                badge="Safe"
+              />
+              <ListRow
+                icon={<ClipboardCheck size={20} />}
+                label="Reports"
+                value="View Audit Logs"
+                noBorder
+              />
             </div>
           </div>
         </div>
 
         <div className="h-12" />
       </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #f1f5f9;
+          border-radius: 20px;
+        }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+        }
+      `}</style>
     </div>
   );
 }

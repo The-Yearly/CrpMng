@@ -1,6 +1,6 @@
 "use client";
 import { Users, Leaf, LandPlot, ChevronDown } from "lucide-react";
-import { filterType } from "../farmers/page";
+import { filterType } from "../utils/types";
 
 export default function Hero({
   welcomeMessage,
@@ -8,12 +8,14 @@ export default function Hero({
   setSearchValue,
   filters,
   setFilters,
+  searchBarPlaceHolder,
 }: {
   welcomeMessage: string;
   searchValue: string;
   setSearchValue: React.Dispatch<React.SetStateAction<string>>;
   filters: filterType[];
   setFilters: React.Dispatch<React.SetStateAction<filterType[]>>;
+  searchBarPlaceHolder: string;
 }) {
   const heroData = [
     {
@@ -68,7 +70,7 @@ export default function Hero({
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               className="w-full bg-white/90 mt-4 rounded-full h-12 px-4 shadow focus:outline-none"
-              placeholder="Search Farmer (ID or Name)"
+              placeholder={searchBarPlaceHolder}
             />
             <div className="flex mt-2 ml-2 space-x-5">
               {filters.map((filter, i) => (

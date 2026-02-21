@@ -1,4 +1,5 @@
 import { AdminWrapper } from "./components/adminWrapper";
+
 export default function AdminLayout({
   children,
 }: {

@@ -13,9 +13,9 @@ export interface farmerType {
   agentId: number;
   farmerId: number;
   name: string;
-  noOfPlots: number;
+  noOfPlots?: number;
   farmerImage: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface AgentType {
@@ -34,4 +34,72 @@ export interface PlotDets extends plotType {
 export interface fullFarmerDetails extends farmerType {
   crops: string[];
   locations: string[];
+}
+
+export interface CropStats {
+  totalFarmers: number;
+  totalPlots: number;
+  totalArea: number;
+}
+
+export interface CropGridType {
+  cropId: number;
+  cropName: string;
+  cropImage: string;
+  cropDesc?: string;
+  stats: {
+    totalFarmers: number;
+    totalPlots: number;
+  };
+}
+
+export interface IndivitualCrop extends CropGridType {
+  plots: {
+    pid: {
+      plotCords: LatLngTuple[];
+      location: string;
+      plotImage: string;
+      plotId: number;
+      fid: {
+        farmerId: number;
+        farmerName: string;
+        farmerPic: string;
+        agentId: number;
+      };
+    };
+  }[];
+  stages: Stages[];
+}
+
+export interface Stages {
+  sid: number;
+  stagename: string;
+  duration: number;
+  stagenumber: number;
+  cropsubstages: {
+    substageid: number;
+    substagename: string;
+    substagescoloumns: {
+      substagedataid: number;
+      substagecolomn: string;
+      substagecoloumnvalue: string;
+    }[];
+  }[];
+}
+
+export interface fullPlotDetails extends plotType {
+  cropData: {
+    cropStages: {
+      stagename: string;
+      cropsubstages: {
+        substagename: string;
+        cropsubstagesvalues: {
+          plotsubstagevalues: {
+            name: string;
+            data: string;
+          }[];
+        }[];
+      }[];
+    }[];
+  }[];
 }

@@ -3,7 +3,6 @@ import { selectedPlot } from "../../utils/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { LatLngTuple } from "leaflet";
 import React from "react";
-import axios from "axios";
 import {
   Marker,
   TileLayer,
@@ -102,7 +101,13 @@ const MapUpdater = ({ lat, lng }: { lat: number; lng: number }) => {
   return null;
 };
 
-export const MapCardClient = () => {
+export const MapCardClient = ({
+  Plots,
+  showFilter,
+}: {
+  Plots: selectedPlot[];
+  showFilter: boolean;
+}) => {
   const cardAnimationLeft = {
     x: -100,
     opacity: 0,
@@ -116,17 +121,7 @@ export const MapCardClient = () => {
   const [selectedCrop, setSelectedCrop] = useState("Select Crop");
   const [selectedPlot, setSelectedPlot] = useState<selectedPlot | null>(null);
   const [exitDir, setExitdir] = useState<"Right" | "Down">("Down");
-  const [Plots, SetPlots] = useState<selectedPlot[] | null>(null);
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await axios.get(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/getMapDetails",
-      );
-      console.log(res.data);
-      SetPlots(res.data.data);
-    };
-    fetchData();
-  }, []);
+
   if (Plots != null) {
     const selectedCropPlot: selectedPlot[] = Plots.filter((area) =>
       selectedCrop != "Select Crop"
@@ -157,8 +152,9 @@ export const MapCardClient = () => {
         prev === 0 ? validLocations.length - 1 : prev - 1,
       );
     };
+    console.log(validLocations);
     return (
-      <div className="bg-white flex flex-col relative w-full overflow-hidden col-span-1 md:col-span-2 rounded-2xl">
+      <div className="bg-white rounded-2xl flex w-full h-full md:w-full flex-col relative  overflow-hidden  ">
         <MapContainer
           className="z-10 h-full w-full"
           center={[
@@ -235,15 +231,17 @@ export const MapCardClient = () => {
         </div>
 
         <div className="absolute top-5 left-15 w-42 z-10 bg-white rounded-md shadow-md flex flex-col">
-          <button
-            className="flex items-center justify-between px-3 py-1 w-full"
-            onClick={() => setShowDropDown(!showDropDown)}
-          >
-            <span>{selectedCrop} </span>
-            <ChevronDown
-              className={`transition-transform ${showDropDown ? "rotate-180" : ""}`}
-            />
-          </button>
+          {showFilter && (
+            <button
+              className="flex items-center justify-between px-3 py-1 w-full"
+              onClick={() => setShowDropDown(!showDropDown)}
+            >
+              <span>{selectedCrop} </span>
+              <ChevronDown
+                className={`transition-transform ${showDropDown ? "rotate-180" : ""}`}
+              />
+            </button>
+          )}
 
           <AnimatePresence>
             {showDropDown && (
