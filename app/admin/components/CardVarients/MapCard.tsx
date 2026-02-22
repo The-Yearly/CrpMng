@@ -125,15 +125,7 @@ export const MapCardClient = ({
   const [selectedCrop, setSelectedCrop] = useState("Select Crop");
   const [selectedPlot, setSelectedPlot] = useState<selectedPlot | null>(null);
   const [exitDir, setExitdir] = useState<"Right" | "Down">("Down");
-
-  if (Plots != null) {
-    const selectedCropPlot: selectedPlot[] = Plots.filter((area) =>
-      selectedCrop != "Select Crop"
-        ? area.crop == selectedCrop
-        : area.crop.includes(""),
-    );
-
-    const validLocations = Object.values(
+      const validLocations = Object.values(
       Plots.filter((area) =>
         selectedCrop !== "Select Crop" ? area.crop === selectedCrop : true,
       ).reduce(
@@ -146,6 +138,18 @@ export const MapCardClient = ({
         {} as Record<string, (typeof Plots)[number]>,
       ),
     );
+    const lastValidCenter = useRef<LatLngTuple>([
+      validLocations?.[currentLocation]?.plot?.[0]?.[0] ?? 10,
+      validLocations?.[currentLocation]?.plot?.[0]?.[1] ?? 76,
+    ]);
+  if (Plots != null) {
+    const selectedCropPlot: selectedPlot[] = Plots.filter((area) =>
+      selectedCrop != "Select Crop"
+        ? area.crop == selectedCrop
+        : area.crop.includes(""),
+    );
+
+
 
     const changePosPlus = () => {
       setCurrentLocation((prev) => (prev + 1) % validLocations.length);
@@ -156,10 +160,7 @@ export const MapCardClient = ({
         prev === 0 ? validLocations.length - 1 : prev - 1,
       );
     };
-    const lastValidCenter = useRef<LatLngTuple>([
-      validLocations?.[currentLocation]?.plot?.[0]?.[0] ?? 10,
-      validLocations?.[currentLocation]?.plot?.[0]?.[1] ?? 76,
-    ]);
+
     const hasValidPlot = validLocations?.[currentLocation]?.plot?.length > 0;
 
     if (hasValidPlot) {
